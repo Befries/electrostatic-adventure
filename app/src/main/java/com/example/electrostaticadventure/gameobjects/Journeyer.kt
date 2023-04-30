@@ -1,44 +1,64 @@
 package com.example.electrostaticadventure.gameobjects
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import com.example.electrostaticadventure.R
 import com.example.electrostaticadventure.mathmodule.Vector2D
-import java.util.Random
+import com.example.electrostaticadventure.mathmodule.Vector2D.Companion.mag
 
 class Journeyer(
-    private val field: Field, var position: Vector2D, diameter: Float,
+    private val field: Field, var position: Vector2D, private val radius: Float, maxSpeed: Float,
     private val walls: ArrayList<Wall>, private val plaques: ArrayList<Plaque>,
-    private val finishing: Plaque
+    private val finishing: Plaque, context: Context
 ) {
 
     private var polarity = 1
     private var speed = Vector2D(0f, 0f);
+    private val maxSpeedSquared = maxSpeed * maxSpeed;
+
+    private val bodyPosTexture = BitmapFactory.decodeResource(context.resources, R.drawable.pjcs1);
+    private val bodyNegTexture = BitmapFactory.decodeResource(context.resources, R.drawable.pjcs1);
+    private var bodyTexture = bodyPosTexture;
+
+    private val eyesUpLeft = BitmapFactory.decodeResource(context.resources, R.drawable.eyes_upleft);
+    private val eyesUpRight = BitmapFactory.decodeResource(context.resources, R.drawable.eyes_upright);
+    private val eyesDownLeft = BitmapFactory.decodeResource(context.resources, R.drawable.eyes_downleft);
+    private val eyesDownRight = BitmapFactory.decodeResource(context.resources, R.drawable.eyes_downright);
+    private lateinit var eyes: Bitmap;
+
+    private var moustacheTexture = BitmapFactory.decodeResource(context.resources, R.drawable.moustache);
+
 
     var hitBox = RectF(
-        position.x - diameter / 2, position.y - diameter / 2,
-        position.x + diameter / 2, position.y + diameter / 2
+        position.x - radius, position.y - radius,
+        position.x + radius, position.y + radius
     );
 
-    private val paint = Paint();
-    private val random = Random();
-    var color = Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
 
+
+    private val paint = Paint();
+
+    init {
+        paint.color = Color.YELLOW;
+
+    }
 
     // dt determined by the real time passed
     fun update(dt: Float) {
         val acc = field.getFieldAt(position);
-        speed += acc * dt;
+
+        if (mag(speed + acc * dt) < maxSpeedSquared) speed += acc * dt;
         val dl = speed * dt;
+        position += dl;
 
-        hitBox.offset(dl.x, dl.y);
+        updateHitBox();
 
-        for (wall in walls) {
-            wall.check(this);
-            /*wall check if the charge touches the wall.
-            in this case the wall calls the function bounce*/
-        }
+        for (wall in walls) wall.check(this, dt);
 
         for (plaque in plaques) {
             plaque.check(this);
@@ -46,10 +66,17 @@ class Journeyer(
         finishing.check(this);
     }
 
+    private fun updateHitBox() {
+        hitBox.offsetTo(position.x - radius, position.y - radius);
+    }
+
     // orientation: true means horizontal wall
-    fun bounce(orientation: Boolean) {
+    fun bounce(orientation: Boolean, dt: Float) {
         if (orientation) speed.y *= -1;
         else speed.x *= -1;
+        val dl = speed * (2 * dt);
+        position += dl;
+        updateHitBox();
     }
 
     fun polarityChange() {
@@ -57,7 +84,15 @@ class Journeyer(
     }
 
     fun draw(canvas: Canvas?) {
-        paint.color = color
-        canvas?.drawOval(hitBox, paint)
+        eyes = if (speed.x > 0) {
+            if (speed.y > 0) eyesDownRight;
+            else eyesUpRight;
+        } else {
+            if (speed.y > 0) eyesDownLeft;
+            else eyesUpLeft;
+        }
+        canvas?.drawBitmap(bodyTexture, null, hitBox, null);
+        canvas?.drawBitmap(eyes, null, hitBox, null);
+        canvas?.drawBitmap(moustacheTexture, null, hitBox, null);
     }
 }

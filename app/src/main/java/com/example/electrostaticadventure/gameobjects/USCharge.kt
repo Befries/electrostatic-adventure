@@ -17,7 +17,7 @@ class USCharge(polarity: Int, center: Vector2D, context: Context) : Charge(polar
 
     var radius = 80;
     var paint = Paint();
-    private lateinit var texture: Bitmap;
+    private var texture: Bitmap;
     var hitbox = RectF(center.x - radius, center.y - radius,
         center.x + radius, center.y + radius);
 

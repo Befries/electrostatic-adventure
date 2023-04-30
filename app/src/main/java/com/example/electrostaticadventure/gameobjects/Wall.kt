@@ -1,9 +1,28 @@
 package com.example.electrostaticadventure.gameobjects
 
-class Wall {
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
+import com.example.electrostaticadventure.mathmodule.Vector2D
+import kotlin.math.abs
 
-    fun check(journeyer: Journeyer) {
+class Wall(topLeft: Vector2D, downRight: Vector2D) {
 
+    private var hitBox = RectF(topLeft.x, topLeft.y, downRight.x, downRight.y);
+    private var orientation = abs(topLeft.x - downRight.x) > abs(topLeft.y - downRight.y);
+    private var paint = Paint();
+
+    init {
+        paint.color = Color.GRAY;
+    }
+
+    fun check(journeyer: Journeyer, dt: Float) {
+        if (RectF.intersects(journeyer.hitBox, hitBox)) journeyer.bounce(orientation, dt);
+    }
+
+    fun draw(canvas: Canvas?) {
+        canvas?.drawRect(hitBox, paint);
     }
 
 }

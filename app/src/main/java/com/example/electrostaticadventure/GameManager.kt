@@ -1,6 +1,5 @@
 package com.example.electrostaticadventure
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -12,14 +11,18 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import com.example.electrostaticadventure.gameobjects.Field
 import com.example.electrostaticadventure.gameobjects.Journeyer
-import com.example.electrostaticadventure.gameobjects.plaques.Plaque
-import com.example.electrostaticadventure.gameobjects.USCharge
+import com.example.electrostaticadventure.gameobjects.UncontrolableCharge
 import com.example.electrostaticadventure.gameobjects.Wall
+import com.example.electrostaticadventure.gameobjects.plaques.EditorMode
 import com.example.electrostaticadventure.gameobjects.plaques.FinishPlaque
+import com.example.electrostaticadventure.gameobjects.plaques.Plaque
 import com.example.electrostaticadventure.mathmodule.Vector2D
+import com.example.electrostaticadventure.uiobjects.ChargeButton
+import com.example.electrostaticadventure.uiobjects.EraseButton
 import com.example.electrostaticadventure.uiobjects.GameButton
 import com.example.electrostaticadventure.uiobjects.LaunchButton
 import com.example.electrostaticadventure.uiobjects.MenuButton
+import com.example.electrostaticadventure.uiobjects.RunButton
 
 class GameManager @JvmOverloads constructor(
     context: Context,
@@ -38,19 +41,22 @@ class GameManager @JvmOverloads constructor(
 
     private var backgroundPaint = Paint();
     lateinit var playgroundArea: RectF;
+
     var gameState = GameStatus.MENU;
+    var editorMode = EditorMode.IDLE;
 
     private var menuDrawers = ArrayList<Drawer>();
-    private var gameDrawers = ArrayList<Drawer>();
+    var gameDrawers = ArrayList<Drawer>();
 
-    private var gameButtons = ArrayList<GameButton>();
-
-    lateinit var launchButton: LaunchButton;
-    lateinit var backToMenuButton: MenuButton;
+    private lateinit var menuButtons: Array<GameButton>;
+    private lateinit var gameButtons: Array<GameButton>;
+    private lateinit var runStopButton: RunButton;
 
     private var field = Field(30, 10);
-    private var finishPlaque = FinishPlaque(RectF(0f, 0f, 100f, 100f),
-        this);
+    private var finishPlaque = FinishPlaque(
+        RectF(0f, 0f, 100f, 100f),
+        this
+    );
     private var walls = ArrayList<Wall>();
     private var plaques = ArrayList<Plaque>();
 
@@ -69,40 +75,41 @@ class GameManager @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh);
-
-        generateMenu(w.toFloat(), h.toFloat());
         /*
          define where the game is played understanding that the top and bottom
          are occupied by buttons
          */
-        val playgroundOrigin = Vector2D(100f, 100f);
-        val playgroundWidth = 2;
-        val playgroundHeight = 3;
-        generateGameLayout(w.toFloat(), h.toFloat(), playgroundOrigin);
-        generateGameUI(w.toFloat(), h.toFloat());
+        val playgroundOrigin = Vector2D(0f, 5 * w.toFloat()/32);
+        val playgroundHeight = h.toFloat() - w.toFloat()/4;
 
         playgroundArea = RectF(
             playgroundOrigin.x, playgroundOrigin.y,
-            playgroundOrigin.x + w.toFloat(), playgroundOrigin.y + h.toFloat()
+            w.toFloat(),
+            playgroundHeight
         );
+
+        generateMenu(w.toFloat(), h.toFloat());
+        generateGameLayout(w.toFloat(), playgroundHeight - playgroundOrigin.y, playgroundOrigin);
+        generateGameUI(w.toFloat(), h.toFloat());
         environmentInitialized = true;
     }
 
 
     private fun generateMenu(w: Float, h: Float) {
         // length = two times height -> length = 6w/8 -> height = 3w/8
-        launchButton = LaunchButton(
+        val launchButton = LaunchButton(
             RectF(w / 8, h / 8, 7 * w / 8, (h + 3 * w) / 8),
             context, R.drawable.launch_button_down, R.drawable.launch_button_up,
             R.drawable.launch_button_down, this
         );
+
         menuDrawers.add(launchButton);
-        gameButtons.add(launchButton);
+        menuButtons = arrayOf(launchButton);
     }
 
     private fun generateGameUI(w: Float, h: Float) {
         // length * 40 = height * 64 -> length = w/4 -> height = 5*w/32
-        backToMenuButton = MenuButton(
+        val backToMenuButton = MenuButton(
             RectF(0f, 0f, w / 4, 5 * w / 32),
             context,
             R.drawable.menu_button_down,
@@ -110,21 +117,63 @@ class GameManager @JvmOverloads constructor(
             R.drawable.menu_button_down,
             this
         );
-        gameDrawers.add(backToMenuButton);
-        gameButtons.add(backToMenuButton);
+
+         runStopButton = RunButton(
+            RectF(3 * w / 4 , 0f, w, 5 * w / 32),
+            context,
+            R.drawable.run_button_down,
+            R.drawable.run_button_up,
+            R.drawable.stop_button_up,
+            R.drawable.stop_button_down,
+            this
+        );
+
+        val positiveAdder = ChargeButton(
+            RectF(0f, h - w/4, w/3, h),
+            context,
+            R.drawable.add_positive_down,
+            R.drawable.add_positive_up,
+            R.drawable.add_positive_active,
+            this, EditorMode.POSITIVE_CHARGES
+        );
+
+        val negativeAdder = ChargeButton(
+            RectF(w/3, h - w/4, 2*w/3, h),
+            context,
+            R.drawable.add_negative_down,
+            R.drawable.add_negative_up,
+            R.drawable.add_negative_active,
+            this, EditorMode.NEGATIVE_CHARGES
+        );
+
+        val eraserButton = EraseButton(
+            RectF(2*w/3, h - w/4, w, h),
+            context,
+            R.drawable.erase_button_down,
+            R.drawable.erase_button_up,
+            R.drawable.erased_button_active,
+            this
+        );
+
+        gameButtons = arrayOf(
+            backToMenuButton, runStopButton, positiveAdder, negativeAdder, eraserButton
+        );
+        gameDrawers.addAll(gameButtons);
     }
 
     private fun generateGameLayout(w: Float, h: Float, origin: Vector2D) {
-        field.generateCellArray(w.toInt(), h.toInt());
-        field.add(USCharge(1, Vector2D(w / 2, h / 4), context));
-        field.add(USCharge(-1, Vector2D(w / 2, h * 3 / 4), context));
+        field.generateCellArray(w.toInt(), h.toInt(), origin);
+        field.add(UncontrolableCharge(1, Vector2D(w / 2, h / 4), context));
+        field.add(UncontrolableCharge(-1, Vector2D(w / 2, h * 3 / 4), context));
 
-        walls.add(Wall(Vector2D(0f, 0f), Vector2D(w, 40f)));
-        walls.add(Wall(Vector2D(w - 40f, 0f), Vector2D(w, h)));
-        walls.add(Wall(Vector2D(0f, 0f), Vector2D(40f, h)));
-        walls.add(Wall(Vector2D(0f, h - 40f), Vector2D(w, h)));
+        walls.add(Wall(origin, origin + Vector2D(w, 40f)));
+        walls.add(Wall(origin + Vector2D(w - 40f, 0f), origin + Vector2D(w, h)));
+        walls.add(Wall(origin + Vector2D(0f, 0f), origin + Vector2D(40f, h)));
+        walls.add(Wall(origin + Vector2D(0f, h - 40f), origin + Vector2D(w, h)));
+
+        gameDrawers.add(field);
+        gameDrawers.addAll(walls);
     }
-
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         // buttons activates during release
@@ -132,35 +181,32 @@ class GameManager @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> onTouchDown(event.rawX, event.rawY - 65f);
             MotionEvent.ACTION_UP -> onTouchUP(event.rawX, event.rawY - 65f);
         }
-
         // return true else the app won't take count of the action_up.
         return true;
     }
 
     private fun onTouchDown(x: Float, y: Float) {
         when (gameState) {
-            GameStatus.MENU -> {
-                launchButton.press(x, y);
+            GameStatus.MENU -> for (button in menuButtons) button.press(x, y);
+
+            GameStatus.DEPLOYMENT -> {
+                if (playgroundArea.contains(x, y)) field.add(UncontrolableCharge(1, Vector2D(x, y), context));
+                for (button in gameButtons) button.press(x, y);
             }
 
-            else -> {
-                if (playgroundArea.contains(x, y)) field.add(USCharge(1, Vector2D(x, y), context));
-                backToMenuButton.press(x, y);
-            }
+            GameStatus.RUNNING -> runStopButton.press(x, y);
         }
     }
 
     private fun onTouchUP(x: Float, y: Float) {
         when (gameState) {
-            GameStatus.MENU -> {
-                launchButton.checkAndActivate(x, y);
-            }
+            GameStatus.MENU -> for (button in menuButtons) button.checkAndActivate(x, y);
 
-            else -> {
-                backToMenuButton.checkAndActivate(x, y);
-            }
+            GameStatus.DEPLOYMENT -> for (button in gameButtons) button.checkAndActivate(x, y);
+
+            GameStatus.RUNNING -> runStopButton.checkAndActivate(x, y);
         }
-        for (buttons in gameButtons) buttons.down = false;
+
     }
 
     private fun draw() {
@@ -182,10 +228,8 @@ class GameManager @JvmOverloads constructor(
 
 
     private fun drawGameLayout(canvas: Canvas?) {
-        for (w in walls) w.draw(canvas);
-        field.draw(canvas);
         for (drawn in gameDrawers) drawn.draw(canvas);
-        journeyer.draw(canvas);
+        if (gameState == GameStatus.RUNNING) journeyer.draw(canvas);
     }
 
 
@@ -201,10 +245,6 @@ class GameManager @JvmOverloads constructor(
     }
 
     override fun run() {
-        journeyer = Journeyer(
-            field, Vector2D(500f, 1000f),
-            80f, 20f, walls, plaques, finishPlaque, context
-        );
         var previousFrameTime = System.currentTimeMillis();
 
         while (drawing) {
@@ -213,20 +253,18 @@ class GameManager @JvmOverloads constructor(
             val delayTime = (currentFrameTime - previousFrameTime).toFloat() / 1000 * speedValue;
 
             if (!environmentInitialized) continue;
-            when (gameState) {
-                GameStatus.MENU -> {}
-                GameStatus.DEPLOYMENT -> {
-                    // temporary for tests
-                    journeyer.update(delayTime);
-                }
-
-                GameStatus.RUNNING -> {
-                    journeyer.update(delayTime);
-                }
-            }
+            if (gameState == GameStatus.RUNNING) journeyer.update(delayTime);
             draw();
             previousFrameTime = currentFrameTime;
         }
+    }
+
+    public fun runGame() {
+        journeyer = Journeyer(
+            field, Vector2D(500f, 1000f),
+            50f, 20f, walls, plaques, finishPlaque, context
+        );
+        gameState = GameStatus.RUNNING;
     }
 
 
@@ -236,5 +274,4 @@ class GameManager @JvmOverloads constructor(
     override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {}
 
     override fun surfaceDestroyed(p0: SurfaceHolder) {}
-
 }

@@ -10,20 +10,19 @@ import android.graphics.RectF
 import com.example.electrostaticadventure.R
 import com.example.electrostaticadventure.mathmodule.Vector2D
 
-class USCharge(polarity: Int, center: Vector2D, context: Context) : Charge(polarity, center,
+class UncontrolableCharge(polarity: Int, center: Vector2D, context: Context) : Charge(
+    polarity, center,
     context
 ) {
 
-    var radius = 80;
-    var paint = Paint();
+    private val radius = 60;
     private var texture: Bitmap;
-    var hitbox = RectF(center.x - radius, center.y - radius,
-        center.x + radius, center.y + radius);
-
-
+    var hitbox = RectF(
+        center.x - radius, center.y - radius,
+        center.x + radius, center.y + radius
+    );
 
     init {
-        paint.color = Color.RED;
         texture =
             if (polarity < 0) BitmapFactory.decodeResource(context.resources, R.drawable.ncs1);
             else BitmapFactory.decodeResource(context.resources, R.drawable.pcs2);

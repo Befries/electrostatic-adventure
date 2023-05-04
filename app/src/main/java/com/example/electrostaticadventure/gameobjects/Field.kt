@@ -12,6 +12,7 @@ import com.example.electrostaticadventure.mathmodule.Vector2D.Companion.normal
 
 class Field(var rows: Int, var columns: Int): ArrayList<Charge>(), Drawer {
 
+
     var paint = Paint();
     private var cells = ArrayList<Cell>();
 
@@ -36,14 +37,15 @@ class Field(var rows: Int, var columns: Int): ArrayList<Charge>(), Drawer {
         }
     }
 
-    fun generateCellArray(w: Int, h: Int) {
+    fun generateCellArray(w: Int, h: Int, origin: Vector2D) {
         // initiate Array of cells
         val cellSizeX = w.toFloat() / columns.toFloat();
         val cellSizeY = h.toFloat() / rows.toFloat();
-        for (i in 0..columns) {
-            for (j in 0..rows) {
+        for (i in 1..columns) {
+            for (j in 1..rows) {
                 // middle vector
-                val pos = Vector2D((cellSizeX * (i.toFloat() + 1/2)), (cellSizeY * (j.toFloat() + 1/2)));
+                val pos = Vector2D(origin.x + (cellSizeX * (i.toFloat() + 1/2)),
+                    origin.y + (cellSizeY * (j.toFloat() + 1/2)));
                 // instantiate cell; access a particular cell with index = (x + y * rows)
                 cells.add(Cell(pos, getFieldAt(pos)));
             }
@@ -52,8 +54,8 @@ class Field(var rows: Int, var columns: Int): ArrayList<Charge>(), Drawer {
 
     private fun updateCells() {
         // recalculate the field vector in each cell
-        for (i in 0..columns) {
-            for (j in 0..rows) {
+        for (i in 0 until columns-1) {
+            for (j in 0 until rows-1) {
                 val current = cells[j+i*rows];
                 current.changeValue(getFieldAt(current.bodyCenter));
             }

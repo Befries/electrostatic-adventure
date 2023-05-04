@@ -8,14 +8,14 @@ import com.example.electrostaticadventure.Drawer
 import com.example.electrostaticadventure.GameManager
 
 abstract class GameButton(
-    private val frame: RectF, context: Context,
+    internal val frame: RectF, context: Context,
     pressedImageId: Int, idleImageId: Int, activeImageId: Int,
     val gameManager: GameManager
 ) : Drawer {
 
-    private val idleImage = BitmapFactory.decodeResource(context.resources, idleImageId);
-    private val activeImage = BitmapFactory.decodeResource(context.resources, activeImageId);
-    private val pressedImage = BitmapFactory.decodeResource(context.resources, pressedImageId);
+    internal val idleTexture = BitmapFactory.decodeResource(context.resources, idleImageId);
+    internal val activeTexture = BitmapFactory.decodeResource(context.resources, activeImageId);
+    internal val pressedTexture = BitmapFactory.decodeResource(context.resources, pressedImageId);
 
     var active = false;
     var down = false;
@@ -29,8 +29,8 @@ abstract class GameButton(
     }
 
     final fun checkAndActivate(x: Float, y: Float) {
-        val interaction = isIn(x, y);
-        if (!interaction || active) return;
+        down = false;
+        if (!isIn(x, y)) return;
         active = true;
         activate();
     }
@@ -47,9 +47,9 @@ abstract class GameButton(
     abstract fun activate();
 
     override fun draw(canvas: Canvas?) {
-        if (down) canvas?.drawBitmap(pressedImage, null, frame, null);
-        else if (active) canvas?.drawBitmap(activeImage, null, frame, null);
-        else canvas?.drawBitmap(idleImage, null, frame, null);
+        if (down) canvas?.drawBitmap(pressedTexture, null, frame, null);
+        else if (active) canvas?.drawBitmap(activeTexture, null, frame, null);
+        else canvas?.drawBitmap(idleTexture, null, frame, null);
     }
 
 }

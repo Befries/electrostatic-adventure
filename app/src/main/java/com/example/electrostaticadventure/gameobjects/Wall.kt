@@ -15,7 +15,7 @@ class Wall(topLeft: Vector2D, downRight: Vector2D): Drawer {
     private var paint = Paint();
 
     init {
-        paint.color = Color.GRAY;
+        paint.color = Color.BLACK;
     }
 
     fun check(journeyer: Journeyer, dt: Float) {

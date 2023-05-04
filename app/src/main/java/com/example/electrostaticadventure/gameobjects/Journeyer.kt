@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import com.example.electrostaticadventure.R
+import com.example.electrostaticadventure.gameobjects.plaques.Plaque
 import com.example.electrostaticadventure.mathmodule.Vector2D
 import com.example.electrostaticadventure.mathmodule.Vector2D.Companion.mag
 

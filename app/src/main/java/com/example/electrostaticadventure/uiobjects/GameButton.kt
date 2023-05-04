@@ -7,15 +7,17 @@ import android.graphics.RectF
 import com.example.electrostaticadventure.Drawer
 import com.example.electrostaticadventure.GameManager
 
-abstract class GameButton(private val frame: RectF, context: Context,
-                          pressedImageId: Int, idleImageId: Int, activeImageId: Int,
-                          val gameManager: GameManager): Drawer {
+abstract class GameButton(
+    private val frame: RectF, context: Context,
+    pressedImageId: Int, idleImageId: Int, activeImageId: Int,
+    val gameManager: GameManager
+) : Drawer {
 
     private val idleImage = BitmapFactory.decodeResource(context.resources, idleImageId);
     private val activeImage = BitmapFactory.decodeResource(context.resources, activeImageId);
     private val pressedImage = BitmapFactory.decodeResource(context.resources, pressedImageId);
 
-    private var active = false;
+    var active = false;
     var down = false;
 
     private final fun isIn(x: Float, y: Float): Boolean {
@@ -27,13 +29,10 @@ abstract class GameButton(private val frame: RectF, context: Context,
     }
 
     final fun checkAndActivate(x: Float, y: Float) {
-        if (isIn(x, y)) {
-            down = false;
-            if (!active) {
-                active = true;
-                activate();
-            }
-        };
+        val interaction = isIn(x, y);
+        if (!interaction || active) return;
+        active = true;
+        activate();
     }
 
     public fun toSleep() {
@@ -43,6 +42,7 @@ abstract class GameButton(private val frame: RectF, context: Context,
 
     // action of the button when he goes to sleep
     abstract fun sleepSetup();
+
     // action of the button when he is pressed
     abstract fun activate();
 

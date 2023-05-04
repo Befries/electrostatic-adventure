@@ -1,18 +1,13 @@
 package com.example.electrostaticadventure.gameobjects
 
 import android.content.Context
-import android.graphics.PointF
 import com.example.electrostaticadventure.Drawer
 import com.example.electrostaticadventure.GameManager
 import com.example.electrostaticadventure.mathmodule.Vector2D
-import com.example.electrostaticadventure.mathmodule.Vector2D.Companion.mag
 import com.example.electrostaticadventure.mathmodule.Vector2D.Companion.magSquared
 import com.example.electrostaticadventure.mathmodule.Vector2D.Companion.normal
-import kotlin.math.abs
-import kotlin.math.pow
 
 abstract class Charge(private val polarity: Int, var center: Vector2D, var context: Context): Drawer {
-
 
     public fun getFieldAt(pos: Vector2D): Vector2D {
         // if right on it, no field

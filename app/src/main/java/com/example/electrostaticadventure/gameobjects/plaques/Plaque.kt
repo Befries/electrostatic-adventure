@@ -1,11 +1,12 @@
-package com.example.electrostaticadventure.gameobjects
+package com.example.electrostaticadventure.gameobjects.plaques
 
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import com.example.electrostaticadventure.gameobjects.Journeyer
 
-class Plaque (var rectPlaque: RectF) {
+abstract class Plaque (var rectPlaque: RectF) {
 
     private val paint = Paint();
 
@@ -18,6 +19,8 @@ class Plaque (var rectPlaque: RectF) {
     }
 
     fun check(journeyer : Journeyer){
-        if (rectPlaque.intersect(journeyer.hitBox)) journeyer.polarityChange();
+        if (rectPlaque.intersect(journeyer.hitBox)) reaction(journeyer);
     }
+
+    abstract fun reaction(journeyer: Journeyer);
 }

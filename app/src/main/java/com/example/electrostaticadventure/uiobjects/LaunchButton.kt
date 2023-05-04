@@ -5,17 +5,17 @@ import android.graphics.RectF
 import com.example.electrostaticadventure.GameManager
 import com.example.electrostaticadventure.GameStatus
 
-class LaunchButton(frame: RectF, context: Context, pressedImageId:
-Int, idleImageId: Int, activeImageId: Int, gameManager: GameManager
-) : GameButton(frame, context, pressedImageId, idleImageId, activeImageId,gameManager) {
+class LaunchButton(
+    frame: RectF, context: Context, pressedImageId:
+    Int, idleImageId: Int, activeImageId: Int, gameManager: GameManager
+) : GameButton(frame, context, pressedImageId, idleImageId, activeImageId, gameManager) {
 
 
     override fun activate() {
         gameManager.gameState = GameStatus.DEPLOYMENT;
+        toSleep();
     }
 
-    override fun sleepSetup() {
-        gameManager.gameState = GameStatus.MENU;
-    }
+    override fun sleepSetup() {}
 
 }

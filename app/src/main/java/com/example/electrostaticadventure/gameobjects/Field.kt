@@ -23,7 +23,6 @@ class Field(var rows: Int, var columns: Int): ArrayList<Charge>(), Drawer {
 
     inner class Cell(val bodyCenter: Vector2D, var value: Vector2D) {
         // class of the arrows showing up on the field
-
         private var back = bodyCenter - value/2f;
         private var front = back + value;
 
@@ -32,9 +31,8 @@ class Field(var rows: Int, var columns: Int): ArrayList<Charge>(), Drawer {
             back = bodyCenter - value/2f;
             front = back + value;
         }
-
-        fun draw(canvas: Canvas) {
-            canvas.drawLine(back.x, back.y, front.x, front.y, paint);
+        fun draw(canvas: Canvas?) {
+            canvas?.drawLine(back.x, back.y, front.x, front.y, paint);
         }
     }
 
@@ -77,7 +75,7 @@ class Field(var rows: Int, var columns: Int): ArrayList<Charge>(), Drawer {
         else normal(totalField) * GameManager.maxTotalField;
     }
 
-    override fun draw(canvas: Canvas) {
+    override fun draw(canvas: Canvas?) {
         // draw each arrow and the charges on top
         for (cell in cells) cell.draw(canvas);
         for (charge in this) charge.draw(canvas);

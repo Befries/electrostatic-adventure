@@ -4,10 +4,11 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import com.example.electrostaticadventure.Drawer
 import com.example.electrostaticadventure.mathmodule.Vector2D
 import kotlin.math.abs
 
-class Wall(topLeft: Vector2D, downRight: Vector2D) {
+class Wall(topLeft: Vector2D, downRight: Vector2D): Drawer {
 
     private var hitBox = RectF(topLeft.x, topLeft.y, downRight.x, downRight.y);
     private var orientation = abs(topLeft.x - downRight.x) > abs(topLeft.y - downRight.y);
@@ -21,7 +22,7 @@ class Wall(topLeft: Vector2D, downRight: Vector2D) {
         if (RectF.intersects(journeyer.hitBox, hitBox)) journeyer.bounce(orientation, dt);
     }
 
-    fun draw(canvas: Canvas?) {
+    override fun draw(canvas: Canvas?) {
         canvas?.drawRect(hitBox, paint);
     }
 

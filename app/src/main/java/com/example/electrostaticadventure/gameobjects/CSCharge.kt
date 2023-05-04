@@ -8,9 +8,8 @@ import com.example.electrostaticadventure.mathmodule.Vector2D
 class CSCharge(polarity: Int, center: Vector2D, context: Context): Charge(polarity, center,
     context) {
 
+    override fun draw(canvas: Canvas?) {
 
-    override fun draw(canvas: Canvas) {
-        TODO("Not yet implemented")
     }
 
 }

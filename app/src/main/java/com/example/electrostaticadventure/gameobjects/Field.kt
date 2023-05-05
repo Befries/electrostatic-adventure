@@ -14,6 +14,7 @@ class Field(var rows: Int, var columns: Int): ArrayList<Charge>(), Drawer {
 
 
     var paint = Paint();
+    var drawingCharges = false;
     private var cells = ArrayList<Cell>();
 
     init {
@@ -63,7 +64,15 @@ class Field(var rows: Int, var columns: Int): ArrayList<Charge>(), Drawer {
     }
 
     override fun add(element: Charge): Boolean {
+        waitUntilAvailable();
         val bool = super.add(element)
+        updateCells();
+        return bool;
+    }
+
+    override fun removeAll(elements: Collection<Charge>): Boolean {
+        waitUntilAvailable();
+        val bool = super.removeAll(elements);
         updateCells();
         return bool;
     }
@@ -80,6 +89,14 @@ class Field(var rows: Int, var columns: Int): ArrayList<Charge>(), Drawer {
     override fun draw(canvas: Canvas?) {
         // draw each arrow and the charges on top
         for (cell in cells) cell.draw(canvas);
+        drawingCharges = true;
         for (charge in this) charge.draw(canvas);
+        drawingCharges = false;
     }
+
+    // wait that the drawing ends to modify the array (avoid crash)
+    private fun waitUntilAvailable() {
+        while (drawingCharges) {}
+    }
+
 }

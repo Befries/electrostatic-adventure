@@ -8,7 +8,7 @@ import android.graphics.RectF
 import com.example.electrostaticadventure.R
 import com.example.electrostaticadventure.mathmodule.Vector2D
 
-class ControlableCharge(polarity: Int, center: Vector2D, context: Context) : Charge(
+class ControllableCharge(polarity: Int, center: Vector2D, context: Context) : Charge(
     polarity, center,
     context
 ) {

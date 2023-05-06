@@ -1,10 +1,11 @@
-package com.example.electrostaticadventure.gameobjects
+package com.example.electrostaticadventure.gameobjects.map
 
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import com.example.electrostaticadventure.Drawer
+import com.example.electrostaticadventure.gameobjects.Journeyer
 import com.example.electrostaticadventure.mathmodule.Vector2D
 import kotlin.math.abs
 

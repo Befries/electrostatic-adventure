@@ -15,7 +15,7 @@ import com.example.electrostaticadventure.gameobjects.ControllableCharge
 import com.example.electrostaticadventure.gameobjects.Field
 import com.example.electrostaticadventure.gameobjects.Journeyer
 import com.example.electrostaticadventure.gameobjects.UncontrolableCharge
-import com.example.electrostaticadventure.gameobjects.Wall
+import com.example.electrostaticadventure.gameobjects.map.WallBlock
 import com.example.electrostaticadventure.gameobjects.plaques.EditorMode.*
 import com.example.electrostaticadventure.gameobjects.plaques.FinishPlaque
 import com.example.electrostaticadventure.gameobjects.plaques.Plaque
@@ -26,6 +26,15 @@ import com.example.electrostaticadventure.uiobjects.GameCounter
 import com.example.electrostaticadventure.uiobjects.LaunchButton
 import com.example.electrostaticadventure.uiobjects.MenuButton
 import com.example.electrostaticadventure.uiobjects.RunButton
+import com.example.electrostaticadventure.gameobjects.map.Block
+import com.example.electrostaticadventure.gameobjects.map.BlockDownLeft
+import com.example.electrostaticadventure.gameobjects.map.BlockDownRight
+import com.example.electrostaticadventure.gameobjects.map.BlockLeftRight
+import com.example.electrostaticadventure.gameobjects.map.BlockTopDown
+import com.example.electrostaticadventure.gameobjects.map.BlockTopLeft
+import com.example.electrostaticadventure.gameobjects.map.BlockTopRight
+import com.example.electrostaticadventure.gameobjects.map.Wall
+import com.example.electrostaticadventure.gameobjects.plaques.PolarityChangePlaque
 
 class GameManager @JvmOverloads constructor(
     context: Context,
@@ -65,6 +74,18 @@ class GameManager @JvmOverloads constructor(
 
     private lateinit var negativeCounter: GameCounter;
     private lateinit var positiveCounter: GameCounter;
+
+    private val wallsPosition = ArrayList<Array<Int>>()
+    /*init {
+        for (i in 1..10){
+            wallsPosition.add(arrayOf(2, 3, i))
+        }
+    }
+    private var map = Labyrinth(10, 8, wallsPosition)
+     */
+    private val blocks = ArrayList<Block>()
+    private val rows = 5
+    private val columns = 4
 
     lateinit var thread: Thread;
     lateinit var canvas: Canvas;
@@ -182,13 +203,33 @@ class GameManager @JvmOverloads constructor(
         field.add(UncontrolableCharge(1, Vector2D(w / 2, h / 4), context));
         field.add(UncontrolableCharge(-1, Vector2D(w / 2, h * 3 / 4), context));
 
+        //map.generateWallArray(w.toInt(), h.toInt(), origin)
+
         walls.add(Wall(origin, origin + Vector2D(w, 40f)));
         walls.add(Wall(origin + Vector2D(w - 40f, 0f), origin + Vector2D(w, h)));
         walls.add(Wall(origin + Vector2D(0f, 0f), origin + Vector2D(40f, h)));
         walls.add(Wall(origin + Vector2D(0f, h - 40f), origin + Vector2D(w, h)));
 
+        val blockSizeX = w.toFloat() / columns.toFloat();
+        val blockSizeY = h.toFloat() / rows.toFloat();
+
+
+        blocks.add(BlockLeftRight(origin, blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockLeftRight(Vector2D(origin.x + blockSizeX, origin.y), blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockDownLeft(Vector2D(origin.x + 2*blockSizeX, origin.y), blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockDownRight(Vector2D(origin.x + 3*blockSizeX, origin.y), blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockTopDown(Vector2D(origin.x + 2*blockSizeX, origin.y + blockSizeY), blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockTopLeft(Vector2D(origin.x + 2*blockSizeX, origin.y + 2*blockSizeY), blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockDownRight(Vector2D(origin.x + blockSizeX, origin.y + 2*blockSizeY), blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockTopRight(Vector2D(origin.x + blockSizeX, origin.y + 3*blockSizeY), blockSizeX, blockSizeY, blockSizeX/2, 25f))
+
+        plaques.add(PolarityChangePlaque(RectF(origin.x + 2*blockSizeX, origin.y+2*blockSizeY, origin.x + 3*blockSizeX, origin.y+3*blockSizeY)))
+
         gameDrawers.add(field);
         gameDrawers.addAll(walls);
+        gameDrawers.addAll(blocks)
+        gameDrawers.addAll(plaques)
+        //gameDrawers.add(map)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -272,6 +313,7 @@ class GameManager @JvmOverloads constructor(
     private fun drawGameLayout(canvas: Canvas?) {
         for (drawn in gameDrawers) drawn.draw(canvas);
         if (gameState == RUNNING) journeyer.draw(canvas);
+        //if (gameState == RUNNING || gameState == DEPLOYMENT) journeyer.draw(canvas);
     }
 
 
@@ -302,11 +344,15 @@ class GameManager @JvmOverloads constructor(
     }
 
     public fun runGame() {
+        gameReset()
+        gameState = RUNNING;
+    }
+
+    fun gameReset() {
         journeyer = Journeyer(
             field, Vector2D(500f, 1000f),
-            50f, 20f, walls, plaques, finishPlaque, context
-        );
-        gameState = RUNNING;
+            50f, 20f, walls, blocks,/*map,*/ plaques, finishPlaque, context
+        )
     }
 
 

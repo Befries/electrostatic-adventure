@@ -8,17 +8,20 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import com.example.electrostaticadventure.R
+import com.example.electrostaticadventure.gameobjects.map.Block
+import com.example.electrostaticadventure.gameobjects.map.Wall
+import com.example.electrostaticadventure.gameobjects.map.WallBlock
 import com.example.electrostaticadventure.gameobjects.plaques.Plaque
 import com.example.electrostaticadventure.mathmodule.Vector2D
 import com.example.electrostaticadventure.mathmodule.Vector2D.Companion.mag
 
 class Journeyer(
     private val field: Field, var position: Vector2D, private val radius: Float, maxSpeed: Float,
-    private val walls: ArrayList<Wall>, private val plaques: ArrayList<Plaque>,
+    private val walls: ArrayList<Wall>, private val blocks: ArrayList<Block>/*private val map : Labyrinth,*/, private val plaques: ArrayList<Plaque>,
     private val finishing: Plaque, context: Context
 ) {
 
-    private var polarity = 1
+    private var polarity = 1f
     private var speed = Vector2D(0f, 0f);
     private val maxSpeedSquared = maxSpeed * maxSpeed;
 
@@ -51,7 +54,7 @@ class Journeyer(
 
     // dt determined by the real time passed
     fun update(dt: Float) {
-        val acc = field.getFieldAt(position);
+        val acc = field.getFieldAt(position).times(polarity)
 
         if (mag(speed + acc * dt) < maxSpeedSquared) speed += acc * dt;
         val dl = speed * dt;
@@ -60,6 +63,9 @@ class Journeyer(
         updateHitBox();
 
         for (wall in walls) wall.check(this, dt);
+
+        //map.check(this,  dt)
+        for (block in blocks) block.check(this, dt)
 
         for (plaque in plaques) {
             plaque.check(this);

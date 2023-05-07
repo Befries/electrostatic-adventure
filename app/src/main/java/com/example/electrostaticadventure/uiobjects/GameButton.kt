@@ -24,7 +24,7 @@ abstract class GameButton(
         return frame.contains(x, y);
     }
 
-    final fun press(x: Float, y: Float) {
+    open fun press(x: Float, y: Float) {
         if (isIn(x, y)) down = true;
     }
 

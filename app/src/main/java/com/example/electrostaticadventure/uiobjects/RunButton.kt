@@ -36,4 +36,9 @@ class RunButton(frame: RectF, context: Context, pressedImageId: Int, idleImageId
         }
     }
 
+    override fun press(x: Float, y: Float){
+        super.press(x, y)
+        gameManager.gameStopReset()
+    }
+
 }

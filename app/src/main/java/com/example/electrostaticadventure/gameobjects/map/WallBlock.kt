@@ -13,8 +13,10 @@ class WallBlock(x : Vector2D, y : Vector2D) : Drawer {
     private val hitBox = RectF(x.x, y.x, x.y, y.y)
     val paint = Paint()
     private var orientation = abs(x.x - x.y) > abs(y.x - y.y)
+
+    val initialColor = Color.RED
     init {
-        paint.color = Color.LTGRAY
+        paint.color = initialColor
     }
 
     override fun draw(canvas: Canvas?) {
@@ -35,8 +37,14 @@ class WallBlock(x : Vector2D, y : Vector2D) : Drawer {
         };
     }
 
-    fun update() {
-        paint.color = Color.BLACK
+    fun update(journeyer : Journeyer) {
+        if (journeyer.polarity == -1f) paint.color = Color.BLUE
+        else paint.color = initialColor
+
+    }
+
+    fun colorReset(){
+        paint.color = initialColor
     }
 
 }

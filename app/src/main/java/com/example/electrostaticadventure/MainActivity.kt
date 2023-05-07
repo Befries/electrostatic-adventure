@@ -12,10 +12,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        gameManager = findViewById(R.id.gameView);
 
+        gameManager = findViewById(R.id.gameView);
         gameManager.setWillNotDraw(true);
         gameManager.invalidate();
+
+
     }
 
     override fun onPause() {

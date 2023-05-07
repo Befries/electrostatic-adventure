@@ -13,6 +13,7 @@ class LaunchButton(
 
     override fun activate() {
         gameManager.gameState = GameStatus.DEPLOYMENT;
+        gameManager.gameReset()
         toSleep();
     }
 

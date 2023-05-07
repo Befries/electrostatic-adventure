@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.os.Bundle
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.SurfaceHolder
@@ -72,8 +73,8 @@ class GameManager @JvmOverloads constructor(
     private var walls = ArrayList<Wall>();
     private var plaques = ArrayList<Plaque>();
 
-    private lateinit var negativeCounter: GameCounter;
-    private lateinit var positiveCounter: GameCounter;
+    private lateinit var negativeCounter: GameCounter
+    private lateinit var positiveCounter: GameCounter
 
     private val wallsPosition = ArrayList<Array<Int>>()
     /*init {
@@ -86,6 +87,9 @@ class GameManager @JvmOverloads constructor(
     private val blocks = ArrayList<Block>()
     private val rows = 5
     private val columns = 4
+    var widthScreen : Float = 0f
+    var heightScreen : Float = 0f
+    lateinit var originScreen : Vector2D
 
     lateinit var thread: Thread;
     lateinit var canvas: Canvas;
@@ -106,6 +110,7 @@ class GameManager @JvmOverloads constructor(
          define where the game is played understanding that the top and bottom
          are occupied by buttons
          */
+
         val playgroundOrigin = Vector2D(0f, 5 * w.toFloat() / 32);
         val playgroundHeight = h.toFloat() - w.toFloat() / 4;
 
@@ -114,6 +119,10 @@ class GameManager @JvmOverloads constructor(
             w.toFloat(),
             playgroundHeight
         );
+
+        widthScreen = w.toFloat()
+        heightScreen = playgroundHeight - playgroundOrigin.y
+        originScreen = playgroundOrigin
 
         generateMenu(w.toFloat(), h.toFloat());
         generateGameLayout(w.toFloat(), playgroundHeight - playgroundOrigin.y, playgroundOrigin);
@@ -213,17 +222,31 @@ class GameManager @JvmOverloads constructor(
         val blockSizeX = w.toFloat() / columns.toFloat();
         val blockSizeY = h.toFloat() / rows.toFloat();
 
+        blocks.add(BlockLeftRight(Vector2D(origin.x + 3*blockSizeX, origin.y), blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockDownRight(Vector2D(origin.x + 2*blockSizeX, origin.y), blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockTopLeft(Vector2D(origin.x + 2*blockSizeX,  origin.y + blockSizeY), blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockLeftRight(Vector2D(origin.x + blockSizeX, origin.y + blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockDownRight(Vector2D(origin.x, origin.y + blockSizeY), blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockTopRight(Vector2D(origin.x, origin.y + 2*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockLeftRight(Vector2D(origin.x + blockSizeX, origin.y + 2*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockDownLeft(Vector2D(origin.x + 2*blockSizeX, origin.y + 2*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockTopRight(Vector2D(origin.x +2*blockSizeX, origin.y + 3*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockDownLeft(Vector2D(origin.x + 3*blockSizeX, origin.y + 3*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockTopLeft(Vector2D(origin.x + 3*blockSizeX, origin.y + 4*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockLeftRight(Vector2D(origin.x + 2*blockSizeX, origin.y + 4*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockTopRight(Vector2D(origin.x + blockSizeX, origin.y + 4*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockDownLeft(Vector2D(origin.x+ blockSizeX, origin.y + 3*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockDownRight(Vector2D(origin.x, origin.y + 3*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockTopLeft(Vector2D(origin.x, origin.y + 4*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
 
-        blocks.add(BlockLeftRight(origin, blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockLeftRight(Vector2D(origin.x + blockSizeX, origin.y), blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockDownLeft(Vector2D(origin.x + 2*blockSizeX, origin.y), blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockDownRight(Vector2D(origin.x + 3*blockSizeX, origin.y), blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockTopDown(Vector2D(origin.x + 2*blockSizeX, origin.y + blockSizeY), blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockTopLeft(Vector2D(origin.x + 2*blockSizeX, origin.y + 2*blockSizeY), blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockDownRight(Vector2D(origin.x + blockSizeX, origin.y + 2*blockSizeY), blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockTopRight(Vector2D(origin.x + blockSizeX, origin.y + 3*blockSizeY), blockSizeX, blockSizeY, blockSizeX/2, 25f))
+
+
+
+
+
 
         plaques.add(PolarityChangePlaque(RectF(origin.x + 2*blockSizeX, origin.y+2*blockSizeY, origin.x + 3*blockSizeX, origin.y+3*blockSizeY)))
+
 
         gameDrawers.add(field);
         gameDrawers.addAll(walls);
@@ -280,6 +303,8 @@ class GameManager @JvmOverloads constructor(
             IDLE -> {}
         }
     }
+
+
 
     private fun onTouchUP(x: Float, y: Float) {
         when (gameState) {
@@ -344,15 +369,39 @@ class GameManager @JvmOverloads constructor(
     }
 
     public fun runGame() {
-        gameReset()
+        journeyerReset()
+        plaquesReset()
         gameState = RUNNING;
     }
 
-    fun gameReset() {
+    private fun journeyerReset() {
         journeyer = Journeyer(
             field, Vector2D(500f, 1000f),
             50f, 20f, walls, blocks,/*map,*/ plaques, finishPlaque, context
         )
+    }
+
+    private fun fieldReset(){
+        val removedCharge = ArrayList<Charge>()
+        for (charge in field){
+            if (charge is ControllableCharge){
+                if (charge.polarity > 0) positiveCounter.value += 1
+                else negativeCounter.value += 1
+                removedCharge.add(charge)
+            }
+        }
+        field.removeAll(removedCharge.toSet())
+    }
+
+    private fun plaquesReset(){
+        for (plaque in plaques) plaque.polarityChangeState = "possible"
+    }
+
+    fun gameReset(){
+
+        journeyerReset()
+        plaquesReset()
+        fieldReset()
     }
 
 

@@ -5,6 +5,6 @@ import com.example.electrostaticadventure.gameobjects.Journeyer
 
 class PolarityChangePlaque(rectPlaque: RectF) : Plaque(rectPlaque) {
     override fun reaction(journeyer: Journeyer) {
-        journeyer.polarityChange();
+        journeyer.polarity *= -1
     }
 }

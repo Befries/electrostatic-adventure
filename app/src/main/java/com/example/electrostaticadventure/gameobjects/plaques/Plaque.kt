@@ -10,7 +10,7 @@ import com.example.electrostaticadventure.gameobjects.Journeyer
 abstract class Plaque (var rectPlaque: RectF) : Drawer {
 
     private val paint = Paint();
-    private var polarityChange = "possible"
+    var polarityChangeState = "possible"
 
     init {
         paint.color = Color.RED;
@@ -21,9 +21,9 @@ abstract class Plaque (var rectPlaque: RectF) : Drawer {
     }
 
     fun check(journeyer : Journeyer){
-        if (rectPlaque.intersect(journeyer.hitBox) && polarityChange == "possible") {
+        if (RectF.intersects(journeyer.hitBox, rectPlaque) && polarityChangeState == "possible") {
             reaction(journeyer)
-            polarityChange = "none"
+            polarityChangeState = "none"
         };
     }
 

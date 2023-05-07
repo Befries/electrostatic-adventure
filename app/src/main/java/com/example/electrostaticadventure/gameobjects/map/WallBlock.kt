@@ -13,9 +13,11 @@ class WallBlock(x : Vector2D, y : Vector2D) : Drawer {
     private val hitBox = RectF(x.x, y.x, x.y, y.y)
     val paint = Paint()
     private var orientation = abs(x.x - x.y) > abs(y.x - y.y)
+    init {
+        paint.color = Color.LTGRAY
+    }
 
     override fun draw(canvas: Canvas?) {
-        paint.color = Color.LTGRAY
         canvas?.drawRect(hitBox, paint)
     }
 
@@ -23,5 +25,8 @@ class WallBlock(x : Vector2D, y : Vector2D) : Drawer {
         if (RectF.intersects(journeyer.hitBox, hitBox)) journeyer.bounce(orientation, dt);
     }
 
+    fun update() {
+        paint.color = Color.BLACK
+    }
 
 }

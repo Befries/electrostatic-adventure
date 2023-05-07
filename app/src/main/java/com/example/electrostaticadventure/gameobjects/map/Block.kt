@@ -3,6 +3,7 @@ package com.example.electrostaticadventure.gameobjects.map
 import android.graphics.Canvas
 import com.example.electrostaticadventure.Drawer
 import com.example.electrostaticadventure.gameobjects.Journeyer
+import com.example.electrostaticadventure.gameobjects.ovserver.Observer
 import com.example.electrostaticadventure.mathmodule.Vector2D
 
 
@@ -12,7 +13,7 @@ abstract class Block(
     val height: Float,
     val widthway: Float,
     val widthwall: Float
-) : Drawer {
+) : Drawer, Observer {
     var walls = ArrayList<WallBlock>()
 
     override fun draw(canvas: Canvas?) {
@@ -23,5 +24,9 @@ abstract class Block(
     }
     fun check(journeyer : Journeyer, dt : Float){
         for (wall in walls) wall.check(journeyer, dt)
+    }
+
+    override fun update() {
+        for (wall in walls) wall.update()
     }
 }

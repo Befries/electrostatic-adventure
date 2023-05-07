@@ -10,7 +10,7 @@ import android.graphics.RectF
 import com.example.electrostaticadventure.R
 import com.example.electrostaticadventure.gameobjects.map.Block
 import com.example.electrostaticadventure.gameobjects.map.Wall
-import com.example.electrostaticadventure.gameobjects.map.WallBlock
+import com.example.electrostaticadventure.gameobjects.ovserver.Observer
 import com.example.electrostaticadventure.gameobjects.plaques.Plaque
 import com.example.electrostaticadventure.mathmodule.Vector2D
 import com.example.electrostaticadventure.mathmodule.Vector2D.Companion.mag
@@ -21,12 +21,24 @@ class Journeyer(
     private val finishing: Plaque, context: Context
 ) {
 
-    private var polarity = 1f
+    private var observers = ArrayList<Observer>()
+    init {
+        observers.addAll(blocks)
+    }
+
+    var polarity = 1f
+        set(newPolarity) {
+            field = newPolarity
+            notifyObservers()
+            bodyTexture = if (newPolarity < 0) bodyNegTexture;
+            else bodyPosTexture;
+        }
+
     private var speed = Vector2D(0f, 0f);
     private val maxSpeedSquared = maxSpeed * maxSpeed;
 
     private val bodyPosTexture = BitmapFactory.decodeResource(context.resources, R.drawable.pjcs1);
-    private val bodyNegTexture = BitmapFactory.decodeResource(context.resources, R.drawable.pjcs1);
+    private val bodyNegTexture = BitmapFactory.decodeResource(context.resources, R.drawable.ncs2);
     private var bodyTexture = bodyPosTexture;
 
     private val eyesUpLeft = BitmapFactory.decodeResource(context.resources, R.drawable.eyes_upleft);
@@ -102,4 +114,9 @@ class Journeyer(
         canvas?.drawBitmap(eyes, null, hitBox, null);
         canvas?.drawBitmap(moustacheTexture, null, hitBox, null);
     }
+
+    private fun notifyObservers(){
+        for (observer in observers) observer.update()
+    }
+
 }

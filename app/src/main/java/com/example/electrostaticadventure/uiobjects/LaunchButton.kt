@@ -17,6 +17,5 @@ class LaunchButton(
         toSleep();
     }
 
-    override fun sleepSetup() {}
 
 }

@@ -14,8 +14,6 @@ class MenuButton(
     idleImageId, activeImageId, gameManager
 ) {
 
-    override fun sleepSetup() {}
-
     override fun activate() {
         gameManager.gameState = GameStatus.MENU;
         toSleep();

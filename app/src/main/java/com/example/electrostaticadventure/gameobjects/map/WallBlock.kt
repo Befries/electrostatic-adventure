@@ -22,7 +22,17 @@ class WallBlock(x : Vector2D, y : Vector2D) : Drawer {
     }
 
     fun check(journeyer: Journeyer, dt: Float) {
-        if (RectF.intersects(journeyer.hitBox, hitBox)) journeyer.bounce(orientation, dt);
+        if (RectF.intersects(journeyer.hitBox, hitBox)) {
+            val intersection = RectF(hitBox);
+            intersection.intersect(journeyer.hitBox);
+            if (orientation) {
+                if (intersection.width() > intersection.height()) journeyer.bounce(orientation, dt);
+                else journeyer.bounce(!orientation, dt);
+            } else {
+                if (intersection.height() > intersection.width()) journeyer.bounce(orientation, dt);
+                else journeyer.bounce(!orientation, dt);
+            }
+        };
     }
 
     fun update() {

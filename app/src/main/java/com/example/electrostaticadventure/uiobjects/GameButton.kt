@@ -35,13 +35,11 @@ abstract class GameButton(
         activate();
     }
 
-    public fun toSleep() {
+    public open fun toSleep() {
         active = false;
-        sleepSetup();
     }
 
     // action of the button when he goes to sleep
-    abstract fun sleepSetup();
 
     // action of the button when he is pressed
     abstract fun activate();

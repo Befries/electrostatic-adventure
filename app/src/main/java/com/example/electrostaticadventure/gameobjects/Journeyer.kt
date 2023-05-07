@@ -10,7 +10,7 @@ import android.graphics.RectF
 import com.example.electrostaticadventure.R
 import com.example.electrostaticadventure.gameobjects.map.Block
 import com.example.electrostaticadventure.gameobjects.map.Wall
-import com.example.electrostaticadventure.gameobjects.ovserver.Observer
+import com.example.electrostaticadventure.gameobjects.observer.Observer
 import com.example.electrostaticadventure.gameobjects.plaques.Plaque
 import com.example.electrostaticadventure.mathmodule.Vector2D
 import com.example.electrostaticadventure.mathmodule.Vector2D.Companion.mag
@@ -66,7 +66,7 @@ class Journeyer(
 
     // dt determined by the real time passed
     fun update(dt: Float) {
-        val acc = field.getFieldAt(position).times(polarity)
+        val acc = field.getFieldAt(position) * polarity;
 
         if (mag(speed + acc * dt) < maxSpeedSquared) speed += acc * dt;
         val dl = speed * dt;
@@ -93,13 +93,9 @@ class Journeyer(
     fun bounce(orientation: Boolean, dt: Float) {
         if (orientation) speed.y *= -1;
         else speed.x *= -1;
-        val dl = speed * (2 * dt);
+        val dl = speed * (1.5f * dt);
         position += dl;
         updateHitBox();
-    }
-
-    fun polarityChange() {
-        polarity *= -1
     }
 
     fun draw(canvas: Canvas?) {

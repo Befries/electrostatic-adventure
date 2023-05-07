@@ -5,7 +5,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
-import android.os.Bundle
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.SurfaceHolder
@@ -15,11 +14,18 @@ import com.example.electrostaticadventure.gameobjects.Charge
 import com.example.electrostaticadventure.gameobjects.ControllableCharge
 import com.example.electrostaticadventure.gameobjects.Field
 import com.example.electrostaticadventure.gameobjects.Journeyer
-import com.example.electrostaticadventure.gameobjects.UncontrolableCharge
-import com.example.electrostaticadventure.gameobjects.map.WallBlock
+import com.example.electrostaticadventure.gameobjects.UncontrollableCharge
+import com.example.electrostaticadventure.gameobjects.map.Block
+import com.example.electrostaticadventure.gameobjects.map.BlockDownLeft
+import com.example.electrostaticadventure.gameobjects.map.BlockDownRight
+import com.example.electrostaticadventure.gameobjects.map.BlockLeftRight
+import com.example.electrostaticadventure.gameobjects.map.BlockTopLeft
+import com.example.electrostaticadventure.gameobjects.map.BlockTopRight
+import com.example.electrostaticadventure.gameobjects.map.Wall
 import com.example.electrostaticadventure.gameobjects.plaques.EditorMode.*
 import com.example.electrostaticadventure.gameobjects.plaques.FinishPlaque
 import com.example.electrostaticadventure.gameobjects.plaques.Plaque
+import com.example.electrostaticadventure.gameobjects.plaques.PolarityChangePlaque
 import com.example.electrostaticadventure.mathmodule.Vector2D
 import com.example.electrostaticadventure.uiobjects.EditorButton
 import com.example.electrostaticadventure.uiobjects.GameButton
@@ -27,15 +33,6 @@ import com.example.electrostaticadventure.uiobjects.GameCounter
 import com.example.electrostaticadventure.uiobjects.LaunchButton
 import com.example.electrostaticadventure.uiobjects.MenuButton
 import com.example.electrostaticadventure.uiobjects.RunButton
-import com.example.electrostaticadventure.gameobjects.map.Block
-import com.example.electrostaticadventure.gameobjects.map.BlockDownLeft
-import com.example.electrostaticadventure.gameobjects.map.BlockDownRight
-import com.example.electrostaticadventure.gameobjects.map.BlockLeftRight
-import com.example.electrostaticadventure.gameobjects.map.BlockTopDown
-import com.example.electrostaticadventure.gameobjects.map.BlockTopLeft
-import com.example.electrostaticadventure.gameobjects.map.BlockTopRight
-import com.example.electrostaticadventure.gameobjects.map.Wall
-import com.example.electrostaticadventure.gameobjects.plaques.PolarityChangePlaque
 
 class GameManager @JvmOverloads constructor(
     context: Context,
@@ -44,11 +41,10 @@ class GameManager @JvmOverloads constructor(
 ) : SurfaceView(context, attributes, defStyleAttr), SurfaceHolder.Callback, Runnable {
 
     companion object {
-        const val maxField = 10f;
         const val maxTotalField = 100f;
         const val strength = 50f;
         const val scaleFactor = 500f;
-        const val speedValue = 5f;
+        const val timeAcceleration = 2f;
     }
 
     private var backgroundPaint = Paint();
@@ -77,19 +73,15 @@ class GameManager @JvmOverloads constructor(
     private lateinit var positiveCounter: GameCounter
 
     private val wallsPosition = ArrayList<Array<Int>>()
-    /*init {
-        for (i in 1..10){
-            wallsPosition.add(arrayOf(2, 3, i))
-        }
-    }
-    private var map = Labyrinth(10, 8, wallsPosition)
-     */
-    private val blocks = ArrayList<Block>()
-    private val rows = 5
-    private val columns = 4
-    var widthScreen : Float = 0f
-    var heightScreen : Float = 0f
-    lateinit var originScreen : Vector2D
+
+    private val blocks = ArrayList<Block>();
+    private val rows = 5;
+    private val columns = 4;
+    var widthScreen : Float = 0f;
+    var heightScreen : Float = 0f;
+    lateinit var originScreen : Vector2D;
+
+
 
     lateinit var thread: Thread;
     lateinit var canvas: Canvas;
@@ -106,10 +98,7 @@ class GameManager @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh);
-        /*
-         define where the game is played understanding that the top and bottom
-         are occupied by buttons
-         */
+
 
         val playgroundOrigin = Vector2D(0f, 5 * w.toFloat() / 32);
         val playgroundHeight = h.toFloat() - w.toFloat() / 4;
@@ -209,8 +198,8 @@ class GameManager @JvmOverloads constructor(
 
     private fun generateGameLayout(w: Float, h: Float, origin: Vector2D) {
         field.generateCellArray(w.toInt(), h.toInt(), origin);
-        field.add(UncontrolableCharge(1, Vector2D(w / 2, h / 4), context));
-        field.add(UncontrolableCharge(-1, Vector2D(w / 2, h * 3 / 4), context));
+        field.add(UncontrollableCharge(1, Vector2D(w / 2, h / 4), context));
+        field.add(UncontrollableCharge(-1, Vector2D(w / 2, h * 3 / 4), context));
 
         //map.generateWallArray(w.toInt(), h.toInt(), origin)
 
@@ -221,37 +210,32 @@ class GameManager @JvmOverloads constructor(
 
         val blockSizeX = w.toFloat() / columns.toFloat();
         val blockSizeY = h.toFloat() / rows.toFloat();
+        val widthWay = 4 * blockSizeX/5;
+        val wallWidth = 20f;
 
-        blocks.add(BlockLeftRight(Vector2D(origin.x + 3*blockSizeX, origin.y), blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockDownRight(Vector2D(origin.x + 2*blockSizeX, origin.y), blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockTopLeft(Vector2D(origin.x + 2*blockSizeX,  origin.y + blockSizeY), blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockLeftRight(Vector2D(origin.x + blockSizeX, origin.y + blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockDownRight(Vector2D(origin.x, origin.y + blockSizeY), blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockTopRight(Vector2D(origin.x, origin.y + 2*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockLeftRight(Vector2D(origin.x + blockSizeX, origin.y + 2*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockDownLeft(Vector2D(origin.x + 2*blockSizeX, origin.y + 2*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockTopRight(Vector2D(origin.x +2*blockSizeX, origin.y + 3*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockDownLeft(Vector2D(origin.x + 3*blockSizeX, origin.y + 3*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockTopLeft(Vector2D(origin.x + 3*blockSizeX, origin.y + 4*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockLeftRight(Vector2D(origin.x + 2*blockSizeX, origin.y + 4*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockTopRight(Vector2D(origin.x + blockSizeX, origin.y + 4*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockDownLeft(Vector2D(origin.x+ blockSizeX, origin.y + 3*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockDownRight(Vector2D(origin.x, origin.y + 3*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
-        blocks.add(BlockTopLeft(Vector2D(origin.x, origin.y + 4*blockSizeY),blockSizeX, blockSizeY, blockSizeX/2, 25f))
+        blocks.add(BlockLeftRight(Vector2D(origin.x + 3*blockSizeX, origin.y), blockSizeX, blockSizeY, widthWay, wallWidth))
+        blocks.add(BlockDownRight(Vector2D(origin.x + 2*blockSizeX, origin.y), blockSizeX, blockSizeY, widthWay, wallWidth))
+        blocks.add(BlockTopLeft(Vector2D(origin.x + 2*blockSizeX,  origin.y + blockSizeY), blockSizeX, blockSizeY, widthWay, wallWidth))
+        blocks.add(BlockLeftRight(Vector2D(origin.x + blockSizeX, origin.y + blockSizeY),blockSizeX, blockSizeY, widthWay, wallWidth))
+        blocks.add(BlockDownRight(Vector2D(origin.x, origin.y + blockSizeY), blockSizeX, blockSizeY, widthWay, wallWidth))
+        blocks.add(BlockTopRight(Vector2D(origin.x, origin.y + 2*blockSizeY),blockSizeX, blockSizeY, widthWay, wallWidth))
+        blocks.add(BlockLeftRight(Vector2D(origin.x + blockSizeX, origin.y + 2*blockSizeY),blockSizeX, blockSizeY, widthWay, wallWidth))
+        blocks.add(BlockDownLeft(Vector2D(origin.x + 2*blockSizeX, origin.y + 2*blockSizeY),blockSizeX, blockSizeY, widthWay, wallWidth))
+        blocks.add(BlockTopRight(Vector2D(origin.x +2*blockSizeX, origin.y + 3*blockSizeY),blockSizeX, blockSizeY, widthWay, wallWidth))
+        blocks.add(BlockDownLeft(Vector2D(origin.x + 3*blockSizeX, origin.y + 3*blockSizeY),blockSizeX, blockSizeY, widthWay, wallWidth))
+        blocks.add(BlockTopLeft(Vector2D(origin.x + 3*blockSizeX, origin.y + 4*blockSizeY),blockSizeX, blockSizeY, widthWay, wallWidth))
+        blocks.add(BlockLeftRight(Vector2D(origin.x + 2*blockSizeX, origin.y + 4*blockSizeY),blockSizeX, blockSizeY, widthWay, wallWidth))
+        blocks.add(BlockTopRight(Vector2D(origin.x + blockSizeX, origin.y + 4*blockSizeY),blockSizeX, blockSizeY, widthWay, wallWidth))
+        blocks.add(BlockDownLeft(Vector2D(origin.x+ blockSizeX, origin.y + 3*blockSizeY),blockSizeX, blockSizeY, widthWay, wallWidth))
+        blocks.add(BlockDownRight(Vector2D(origin.x, origin.y + 3*blockSizeY),blockSizeX, blockSizeY, widthWay, wallWidth))
+        blocks.add(BlockTopLeft(Vector2D(origin.x, origin.y + 4*blockSizeY),blockSizeX, blockSizeY, widthWay, wallWidth))
 
+        plaques.add(PolarityChangePlaque(RectF(origin.x + 2*blockSizeX, origin.y+2*blockSizeY, origin.x + 3*blockSizeX, origin.y+3*blockSizeY)));
 
-
-
-
-
-
-        plaques.add(PolarityChangePlaque(RectF(origin.x + 2*blockSizeX, origin.y+2*blockSizeY, origin.x + 3*blockSizeX, origin.y+3*blockSizeY)))
-
-
+        gameDrawers.addAll(plaques)
         gameDrawers.add(field);
         gameDrawers.addAll(walls);
         gameDrawers.addAll(blocks)
-        gameDrawers.addAll(plaques)
         //gameDrawers.add(map)
     }
 
@@ -359,7 +343,7 @@ class GameManager @JvmOverloads constructor(
         while (drawing) {
             // calculate time passed between frame
             val currentFrameTime = System.currentTimeMillis();
-            val delayTime = (currentFrameTime - previousFrameTime).toFloat() / 1000 * speedValue;
+            val delayTime = (currentFrameTime - previousFrameTime).toFloat() / 1000 * timeAcceleration;
 
             if (!environmentInitialized) continue;
             if (gameState == RUNNING) journeyer.update(delayTime);
@@ -377,7 +361,7 @@ class GameManager @JvmOverloads constructor(
     private fun journeyerReset() {
         journeyer = Journeyer(
             field, Vector2D(500f, 1000f),
-            50f, 20f, walls, blocks,/*map,*/ plaques, finishPlaque, context
+            30f, 20f, walls, blocks,/*map,*/ plaques, finishPlaque, context
         )
     }
 
@@ -398,7 +382,6 @@ class GameManager @JvmOverloads constructor(
     }
 
     fun gameReset(){
-
         journeyerReset()
         plaquesReset()
         fieldReset()

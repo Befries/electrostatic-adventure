@@ -42,7 +42,7 @@ class Field(var rows: Int, var columns: Int): ArrayList<Charge>(), Drawer {
         // initiate Array of cells
         val cellSizeX = w.toFloat() / columns.toFloat();
         val cellSizeY = h.toFloat() / rows.toFloat();
-        for (i in 1..columns) {
+        for (i in 0..columns) {
             for (j in 1..rows) {
                 // middle vector
                 val pos = Vector2D(origin.x + (cellSizeX * (i.toFloat() + 1/2)),
@@ -55,7 +55,7 @@ class Field(var rows: Int, var columns: Int): ArrayList<Charge>(), Drawer {
 
     private fun updateCells() {
         // recalculate the field vector in each cell
-        for (i in 0 until columns-1) {
+        for (i in 0..columns) {
             for (j in 0 until rows-1) {
                 val current = cells[j+i*rows];
                 current.changeValue(getFieldAt(current.bodyCenter));

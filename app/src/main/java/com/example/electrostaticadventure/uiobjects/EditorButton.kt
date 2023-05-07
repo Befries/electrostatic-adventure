@@ -20,8 +20,9 @@ class EditorButton(
 ) {
 
 
-    override fun sleepSetup() {
+    override fun toSleep() {
         gameManager.editorMode = EditorMode.IDLE;
+        super.toSleep();
     }
 
     override fun activate() {

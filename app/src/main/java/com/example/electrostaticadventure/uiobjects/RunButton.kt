@@ -16,8 +16,9 @@ class RunButton(frame: RectF, context: Context, pressedImageId: Int, idleImageId
 
     private val pressedStopTexture = BitmapFactory.decodeResource(context.resources, pressedActiveImageId);
 
-    override fun sleepSetup() {
+    override fun toSleep() {
         gameManager.gameState = GameStatus.DEPLOYMENT;
+        super.toSleep()
     }
 
     override fun activate() {

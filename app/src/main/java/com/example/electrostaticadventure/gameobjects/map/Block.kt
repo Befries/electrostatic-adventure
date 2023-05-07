@@ -3,16 +3,17 @@ package com.example.electrostaticadventure.gameobjects.map
 import android.graphics.Canvas
 import com.example.electrostaticadventure.Drawer
 import com.example.electrostaticadventure.gameobjects.Journeyer
-import com.example.electrostaticadventure.gameobjects.ovserver.Observer
+import com.example.electrostaticadventure.gameobjects.observer.Observer
 import com.example.electrostaticadventure.mathmodule.Vector2D
 
 
+// widthWay:
 abstract class Block(
     val origin: Vector2D,
     val width: Float,
     val height: Float,
-    val widthway: Float,
-    val widthwall: Float
+    val widthWay: Float,
+    val widthWall: Float
 ) : Drawer, Observer {
     var walls = ArrayList<WallBlock>()
 

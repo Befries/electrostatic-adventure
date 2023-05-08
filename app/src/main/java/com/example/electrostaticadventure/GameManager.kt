@@ -38,6 +38,11 @@ import com.example.electrostaticadventure.gameobjects.map.Wall
 import com.example.electrostaticadventure.gameobjects.plaques.PolarityChangePlaque
 import com.example.electrostaticadventure.gameobjects.map.Map
 import com.example.electrostaticadventure.gameobjects.map.BlockType.*
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentActivity
+import android.content.DialogInterface
+import android.app.AlertDialog
+import android.app.Dialog
 
 class GameManager @JvmOverloads constructor(
     context: Context,
@@ -52,6 +57,8 @@ class GameManager @JvmOverloads constructor(
         const val scaleFactor = 500f;
         const val speedValue = 5f;
     }
+
+    private val activity = context as FragmentActivity
 
     private lateinit var playgroundArea: RectF;
 
@@ -391,6 +398,48 @@ class GameManager @JvmOverloads constructor(
         journeyerReset()
         plaquesReset()
         wallBlockReset()
+    }
+
+    fun endGame(){
+        drawing = false
+        showGameOverDialog(R.string.end)
+    }
+
+    fun showGameOverDialog(messageId: Int) {
+        class GameResult: DialogFragment() {
+            override fun onCreateDialog(bundle: Bundle?): Dialog {
+                val builder = AlertDialog.Builder(getActivity())
+                builder.setTitle(resources.getString(messageId))
+                //builder.setMessage(resources.getString(R.string.results_format))
+                builder.setPositiveButton(R.string.reset_game,
+                    DialogInterface.OnClickListener { _, _->newGame()}
+                )
+                return builder.create()
+            }
+        }
+
+        activity.runOnUiThread(
+            Runnable {
+                val ft = activity.supportFragmentManager.beginTransaction()
+                val prev =
+                    activity.supportFragmentManager.findFragmentByTag("dialog")
+                if (prev != null) {
+                    ft.remove(prev)
+                }
+                ft.addToBackStack(null)
+                val gameResult = GameResult()
+                gameResult.setCancelable(false)
+                gameResult.show(ft,"dialog")
+            }
+        )
+    }
+
+    fun newGame(){
+        drawing = true
+        //environmentInitialized = false
+        gameMenuReset()
+        thread = Thread(this)
+        thread.start()
     }
 
 

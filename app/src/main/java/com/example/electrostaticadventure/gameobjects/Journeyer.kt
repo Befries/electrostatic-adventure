@@ -7,6 +7,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import com.example.electrostaticadventure.GameManager
 import com.example.electrostaticadventure.R
 import com.example.electrostaticadventure.gameobjects.map.Block
 import com.example.electrostaticadventure.gameobjects.map.Wall

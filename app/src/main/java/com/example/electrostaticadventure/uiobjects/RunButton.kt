@@ -23,7 +23,10 @@ class RunButton(frame: RectF, context: Context, pressedImageId: Int, idleImageId
 
     override fun activate() {
         if (gameManager.gameState == GameStatus.RUNNING) toSleep();
-        else gameManager.runGame();
+        else {
+            gameManager.runGame()
+            gameManager.gameStopReset()
+        }
     }
 
     override fun draw(canvas: Canvas?) {
@@ -34,11 +37,6 @@ class RunButton(frame: RectF, context: Context, pressedImageId: Int, idleImageId
             if (active) canvas?.drawBitmap(activeTexture, null, frame, null);
             else canvas?.drawBitmap(idleTexture, null, frame, null);
         }
-    }
-
-    override fun press(x: Float, y: Float){
-        super.press(x, y)
-        gameManager.gameStopReset()
     }
 
 }

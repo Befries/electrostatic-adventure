@@ -53,14 +53,13 @@ class GameManager @JvmOverloads constructor(
         const val speedValue = 5f;
     }
 
-    private var backgroundPaint = Paint();
-    lateinit var playgroundArea: RectF;
+    private lateinit var playgroundArea: RectF;
+
+    private var menuDrawers = ArrayList<Drawer>();
+    private var gameDrawers = ArrayList<Drawer>();
 
     var gameState = MENU;
     var editorMode = IDLE;
-
-    private var menuDrawers = ArrayList<Drawer>();
-    var gameDrawers = ArrayList<Drawer>();
 
     private lateinit var menuButtons: Array<GameButton>;
     private lateinit var gameButtons: Array<GameButton>;
@@ -78,9 +77,6 @@ class GameManager @JvmOverloads constructor(
     private lateinit var negativeCounter: GameCounter
     private lateinit var positiveCounter: GameCounter
 
-    private val wallsPosition = ArrayList<Array<Int>>()
-
-
     private var map = Map(0,0, 0f, 0f, Vector2D(0f,0f))
 
     lateinit var thread: Thread;
@@ -90,6 +86,8 @@ class GameManager @JvmOverloads constructor(
     private var environmentInitialized = false;
 
     lateinit var journeyer: Journeyer;
+
+    private var backgroundPaint = Paint();
 
     init {
         backgroundPaint.color = Color.rgb(0, 39, 102);
@@ -225,9 +223,9 @@ class GameManager @JvmOverloads constructor(
         map.addBlock(0, 3, DownRight)
         map.addBlock(0, 4, TopLeft)
 
+        plaques.add(PolarityChangePlaque(map.getRectF(2, 2)))
+        plaques.add(PolarityChangePlaque(map.getRectF(1, 3)))
 
-        plaques.add(PolarityChangePlaque(RectF(origin.x + 2*map.blockSizeX, origin.y+2*map.blockSizeY, origin.x + 3*map.blockSizeX, origin.y+3*map.blockSizeY)))
-        plaques.add(PolarityChangePlaque(RectF(origin.x + map.blockSizeX, origin.y+3*map.blockSizeY, origin.x + 2*map.blockSizeX, origin.y+4*map.blockSizeY)))
 
         gameDrawers.add(field);
         gameDrawers.addAll(walls);

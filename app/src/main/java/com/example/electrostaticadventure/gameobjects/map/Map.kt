@@ -1,11 +1,13 @@
 package com.example.electrostaticadventure.gameobjects.map
 
 import android.graphics.Canvas
+import android.graphics.RectF
 import com.example.electrostaticadventure.Drawer
 import com.example.electrostaticadventure.gameobjects.Journeyer
 import com.example.electrostaticadventure.mathmodule.Vector2D
 import com.example.electrostaticadventure.gameobjects.map.BlockType.*
 import com.example.electrostaticadventure.gameobjects.observer.Observer
+import com.example.electrostaticadventure.gameobjects.plaques.Plaque
 
 
 class Map (val rows : Int,
@@ -69,6 +71,15 @@ class Map (val rows : Int,
         }
     }
 
+    fun getRectF(numRowInt : Int, numColumnInt : Int) : RectF {
+        val numRow = numRowInt.toFloat()
+        val numColumn = numColumnInt.toFloat()
+        return RectF(origin.x + numRow*blockSizeX,
+            origin.y + numColumn*blockSizeY,
+            origin.x + (numRow + 1f)*blockSizeX,
+            origin.y + (numColumn+1f)*blockSizeY)
+    }
+
     override fun draw(canvas: Canvas?){
         for (block in this) block .draw(canvas)
     }
@@ -80,7 +91,6 @@ class Map (val rows : Int,
     override fun update(journeyer : Journeyer){
         for (block in this) block.update(journeyer)
     }
-
     fun reset(){
         for (block in this) block.colorReset()
     }

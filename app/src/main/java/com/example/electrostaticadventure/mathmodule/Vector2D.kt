@@ -59,6 +59,15 @@ data class Vector2D(var x: Float, var y: Float) {
     override fun toString(): String {
         return "[$x, $y]";
     }
+
+    fun xVector(): Vector2D {
+        return Vector2D(x, 0f);
+    }
+
+    fun yVector(): Vector2D {
+        return Vector2D(0f, y);
+    }
+
 }
 
 operator fun Float.times(vector2D: Vector2D): Vector2D {

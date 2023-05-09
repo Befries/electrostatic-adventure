@@ -29,7 +29,7 @@ class Field(var rows: Int, var columns: Int) : ArrayList<Charge>(), Drawer {
         private var front = back + value;
 
         fun changeValue(newValue: Vector2D) {
-            value = newValue;
+            value = newValue * GameManager.arrowLengthFactor;
             back = bodyCenter - value / 2f;
             front = back + value;
         }

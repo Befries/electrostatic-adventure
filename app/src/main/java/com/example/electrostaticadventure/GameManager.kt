@@ -43,6 +43,7 @@ class GameManager @JvmOverloads constructor(
 ) : SurfaceView(context, attributes, defStyleAttr), SurfaceHolder.Callback, Runnable {
 
     companion object {
+        const val arrowLengthFactor = 0.6f;
         const val maxTotalField = 100f;
         const val strength = 50f;
         const val scaleFactor = 500f;
@@ -64,17 +65,19 @@ class GameManager @JvmOverloads constructor(
     public lateinit var editorButton: Array<EditorButton>;
     private lateinit var runStopButton: RunButton;
 
-    private var field = Field(30, 10);
+    private var field = Field(40, 18);
     private lateinit var finishPlaque: FinishPlaque;
     private var outerWalls = ArrayList<WallBlock>();
     private var plaques = ArrayList<Plaque>();
+    private lateinit var uncontrollableCharges: Array<UncontrollableCharge>;
+    var map = Map(0, 0, 0f, 0f, Vector2D(0f, 0f));
 
-    private lateinit var negativeCounter: GameCounter
-    private lateinit var positiveCounter: GameCounter
+    private lateinit var negativeCounter: GameCounter;
+    private lateinit var positiveCounter: GameCounter;
+    private lateinit var gameTimer: GameCounter;
+    lateinit var currentBest: GameCounter;
 
-    private var map = Map(0, 0, 0f, 0f, Vector2D(0f, 0f))
-
-    lateinit var thread: Thread;
+    private lateinit var thread: Thread;
     lateinit var canvas: Canvas;
 
     private var drawing = true;
@@ -83,9 +86,13 @@ class GameManager @JvmOverloads constructor(
     lateinit var journeyer: Journeyer;
 
     private var backgroundPaint = Paint();
+    private var currentBestPaint = Paint();
+    private lateinit var currentBestTextPosition: Vector2D;
 
     init {
         backgroundPaint.color = Color.rgb(0, 39, 102);
+        currentBestPaint.textSize = 120f;
+        currentBestPaint.color = Color.BLACK;
     }
 
 
@@ -121,6 +128,12 @@ class GameManager @JvmOverloads constructor(
             R.drawable.launch_button_down, this
         );
 
+        currentBest = GameCounter(w / 5, 3 * h / 4, 9999f);
+        currentBest.rounded = false;
+        currentBest.paint.textSize = 200f;
+        currentBestTextPosition = Vector2D(w / 20, 3 * h / 4 - h / 10);
+
+        menuDrawers.add(currentBest);
         menuDrawers.add(launchButton);
         menuButtons = arrayOf(launchButton);
     }
@@ -182,8 +195,13 @@ class GameManager @JvmOverloads constructor(
         gameDrawers.addAll(gameButtons);
 
         // gotta add the counter to know how many charge are left to be placed.
-        positiveCounter = GameCounter(w / 5, h - w / 16, 3);
-        negativeCounter = GameCounter(w / 3 + 33 * w / 160, h - w / 16, 3);
+        positiveCounter = GameCounter(w / 5, h - w / 16, 3f);
+        negativeCounter = GameCounter(w / 3 + 33 * w / 160, h - w / 16, 3f);
+        gameTimer = GameCounter(w * (1f / 4 + 1f / 40), w / 8, 0f);
+        gameTimer.rounded = false;
+        gameTimer.paint.textSize = 150f;
+
+        gameDrawers.add(gameTimer);
         gameDrawers.add(positiveCounter);
         gameDrawers.add(negativeCounter);
 
@@ -191,10 +209,27 @@ class GameManager @JvmOverloads constructor(
 
     private fun generateGameLayout(w: Float, h: Float, origin: Vector2D) {
         field.generateCellArray(w.toInt(), h.toInt(), origin);
-        field.add(UncontrollableCharge(1, Vector2D(w / 2, h / 4), context));
-        field.add(UncontrollableCharge(-1, Vector2D(w / 2, h * 3 / 4), context));
-
         map = Map(5, 4, w, h, origin)
+
+        val horizontalShift = map.blockSize.xVector();
+        val verticalShift = map.blockSize.yVector();
+
+
+        uncontrollableCharges = arrayOf(
+            UncontrollableCharge(
+                1,
+                map.getCenter(0, 1) + horizontalShift / 3f, context
+            ),
+            UncontrollableCharge(
+                1,
+                map.getCenter(1, 3) + verticalShift / 2f, context
+            ),
+            UncontrollableCharge(
+                -1,
+                map.getCenter(3, 1) + horizontalShift / 2f, context
+            )
+        );
+        field.addAll(uncontrollableCharges);
 
         outerWalls.add(WallBlock(origin, origin + Vector2D(w, 40f)));
         outerWalls.add(WallBlock(origin + Vector2D(w - 40f, 0f), origin + Vector2D(w, h)));
@@ -219,7 +254,6 @@ class GameManager @JvmOverloads constructor(
         map.addBlock(1, 3, DownLeft)
         map.addBlock(0, 3, DownRight)
         map.addBlock(0, 4, TopLeft)
-
 
         plaques.add(PolarityChangePlaque(map.getInnerRectF(2, 2), context))
         plaques.add(PolarityChangePlaque(map.getInnerRectF(3, 1), context))
@@ -307,7 +341,13 @@ class GameManager @JvmOverloads constructor(
             );
 
             when (gameState) {
-                MENU -> for (drawn in menuDrawers) drawn.draw(canvas);
+                MENU -> for (drawn in menuDrawers) {
+                    drawn.draw(canvas)
+                    canvas?.drawText(
+                        "Current best time:",
+                        currentBestTextPosition.x, currentBestTextPosition.y, currentBestPaint
+                    );
+                };
                 else -> drawGameLayout(canvas);
             }
             holder.unlockCanvasAndPost(canvas);
@@ -318,7 +358,6 @@ class GameManager @JvmOverloads constructor(
     private fun drawGameLayout(canvas: Canvas?) {
         for (drawn in gameDrawers) drawn.draw(canvas);
         if (gameState == RUNNING) journeyer.draw(canvas);
-        //if (gameState == RUNNING || gameState == DEPLOYMENT) journeyer.draw(canvas);
     }
 
 
@@ -343,7 +382,10 @@ class GameManager @JvmOverloads constructor(
                 (currentFrameTime - previousFrameTime).toFloat() / 1000 * timeAcceleration;
 
             if (!environmentInitialized) continue;
-            if (gameState == RUNNING) journeyer.update(delayTime);
+            if (gameState == RUNNING) {
+                journeyer.update(delayTime);
+                gameTimer.value += delayTime;
+            };
             draw();
             previousFrameTime = currentFrameTime;
         }
@@ -360,6 +402,7 @@ class GameManager @JvmOverloads constructor(
             field, map.startingPos,
             40f, 20f, map, plaques, finishPlaque, context
         )
+        gameTimer.value = 0f;
     }
 
     private fun fieldReset() {
@@ -398,6 +441,7 @@ class GameManager @JvmOverloads constructor(
 
     fun endGame() {
         drawing = false
+        if (currentBest.value > gameTimer.value) currentBest.value = gameTimer.value;
         showGameOverDialog(R.string.end)
     }
 
@@ -405,7 +449,7 @@ class GameManager @JvmOverloads constructor(
         class GameResult : DialogFragment() {
             override fun onCreateDialog(bundle: Bundle?): Dialog {
                 val builder = AlertDialog.Builder(activity)
-                builder.setTitle(resources.getString(messageId))
+                builder.setTitle(resources.getString(messageId) + "\n Your time was ${gameTimer.value}")
                 //builder.setMessage(resources.getString(R.string.results_format))
                 builder.setPositiveButton(R.string.reset_game,
                     DialogInterface.OnClickListener { _, _ -> newGame() }

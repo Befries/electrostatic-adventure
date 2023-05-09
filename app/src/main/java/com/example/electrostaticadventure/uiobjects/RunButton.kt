@@ -20,6 +20,7 @@ class RunButton(
         BitmapFactory.decodeResource(context.resources, pressedActiveImageId);
 
     override fun toSleep() {
+        gameManager.map.reset();
         gameManager.gameState = GameStatus.DEPLOYMENT;
         super.toSleep()
     }

@@ -18,11 +18,10 @@ class Map(
     private val origin: Vector2D
 ) : ArrayList<Block>(), Drawer, Observer {
     val lonelyWalls = ArrayList<WallBlock>();
-    private val blockSizeX = widthScreen / columns.toFloat()
-    private val blockSizeY = heightScreen / rows.toFloat()
+    val blockSize = Vector2D(widthScreen / columns.toFloat(), heightScreen / rows.toFloat());
     private val wallWidth = 20f;
-    private val corridorWidth = 3 * blockSizeX / 4;
-    val startingPos = Vector2D(origin.x + 3.5f * blockSizeX, origin.y + 0.5f * blockSizeY)
+    private val corridorWidth = 3 * blockSize.x / 4;
+    var startingPos = Vector2D(origin.x + 3.5f * blockSize.x, origin.y + 0.5f * blockSize.y);
 
 
     fun addBlock(numRowInt: Int, numColumnInt: Int, blockType: BlockType) {
@@ -33,11 +32,11 @@ class Map(
             DownLeft -> this.add(
                 BlockDownLeft(
                     Vector2D(
-                        origin.x + numRow * blockSizeX,
-                        origin.y + numColumn * blockSizeY
+                        origin.x + numRow * blockSize.x,
+                        origin.y + numColumn * blockSize.y
                     ),
-                    blockSizeX,
-                    blockSizeY,
+                    blockSize.x,
+                    blockSize.y,
                     corridorWidth,
                     wallWidth
                 )
@@ -46,11 +45,11 @@ class Map(
             DownRight -> this.add(
                 BlockDownRight(
                     Vector2D(
-                        origin.x + numRow * blockSizeX,
-                        origin.y + numColumn * blockSizeY
+                        origin.x + numRow * blockSize.x,
+                        origin.y + numColumn * blockSize.y
                     ),
-                    blockSizeX,
-                    blockSizeY,
+                    blockSize.x,
+                    blockSize.y,
                     corridorWidth,
                     wallWidth
                 )
@@ -59,11 +58,11 @@ class Map(
             LeftRight -> this.add(
                 BlockLeftRight(
                     Vector2D(
-                        origin.x + numRow * blockSizeX,
-                        origin.y + numColumn * blockSizeY
+                        origin.x + numRow * blockSize.x,
+                        origin.y + numColumn * blockSize.y
                     ),
-                    blockSizeX,
-                    blockSizeY,
+                    blockSize.x,
+                    blockSize.y,
                     corridorWidth,
                     wallWidth
                 )
@@ -72,11 +71,11 @@ class Map(
             TopDown -> this.add(
                 BlockTopDown(
                     Vector2D(
-                        origin.x + numRow * blockSizeX,
-                        origin.y + numColumn * blockSizeY
+                        origin.x + numRow * blockSize.x,
+                        origin.y + numColumn * blockSize.y
                     ),
-                    blockSizeX,
-                    blockSizeY,
+                    blockSize.x,
+                    blockSize.y,
                     corridorWidth,
                     wallWidth
                 )
@@ -85,11 +84,11 @@ class Map(
             TopLeft -> this.add(
                 BlockTopLeft(
                     Vector2D(
-                        origin.x + numRow * blockSizeX,
-                        origin.y + numColumn * blockSizeY
+                        origin.x + numRow * blockSize.x,
+                        origin.y + numColumn * blockSize.y
                     ),
-                    blockSizeX,
-                    blockSizeY,
+                    blockSize.x,
+                    blockSize.y,
                     corridorWidth,
                     wallWidth
                 )
@@ -98,11 +97,11 @@ class Map(
             TopRight -> this.add(
                 BlockTopRight(
                     Vector2D(
-                        origin.x + numRow * blockSizeX,
-                        origin.y + numColumn * blockSizeY
+                        origin.x + numRow * blockSize.x,
+                        origin.y + numColumn * blockSize.y
                     ),
-                    blockSizeX,
-                    blockSizeY,
+                    blockSize.x,
+                    blockSize.y,
                     corridorWidth,
                     wallWidth
                 )
@@ -111,15 +110,21 @@ class Map(
         }
     }
 
+    fun getCenter(numRowInt: Int, numColumnInt: Int): Vector2D {
+        return origin + Vector2D(
+            blockSize.x * (numColumnInt + 1f / 2),
+            blockSize.y * (numRowInt + 1f / 2)
+        );
+    }
 
     fun getRectF(numRowInt: Int, numColumnInt: Int): RectF {
         val numColumn = numColumnInt.toFloat()
         val numRow = numRowInt.toFloat()
         return RectF(
-            origin.x + numColumn * blockSizeX,
-            origin.y + numRow * blockSizeY,
-            origin.x + (numColumn + 1f) * blockSizeX,
-            origin.y + (numRow + 1f) * blockSizeY
+            origin.x + numColumn * blockSize.x,
+            origin.y + numRow * blockSize.y,
+            origin.x + (numColumn + 1f) * blockSize.x,
+            origin.y + (numRow + 1f) * blockSize.y
         )
     }
 
@@ -127,10 +132,10 @@ class Map(
         val numColumn = numColumnInt.toFloat()
         val numRow = numRowInt.toFloat()
         return RectF(
-            origin.x + (numColumn + 1f / 2) * blockSizeX - corridorWidth / 2,
-            origin.y + (numRow + 1f / 2) * blockSizeY - corridorWidth / 2,
-            origin.x + (numColumn + 1f / 2) * blockSizeX + corridorWidth / 2,
-            origin.y + (numRow + 1f / 2) * blockSizeY + corridorWidth / 2
+            origin.x + (numColumn + 1f / 2) * blockSize.x - corridorWidth / 2,
+            origin.y + (numRow + 1f / 2) * blockSize.y - corridorWidth / 2,
+            origin.x + (numColumn + 1f / 2) * blockSize.x + corridorWidth / 2,
+            origin.y + (numRow + 1f / 2) * blockSize.y + corridorWidth / 2
         )
     }
 

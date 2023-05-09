@@ -12,34 +12,50 @@ class BlockDownRight(
     init {
         walls.add(
             WallBlock(
-                Vector2D(vector.x + width / 2 - widthway / 2 - widthwall,
-                    vector.x + width / 2 - widthway / 2),
-                Vector2D(vector.y + height / 2 - widthway / 2,
-                    vector.y + height)
+                Vector2D(
+                    vector.x + width / 2 - widthway / 2 - widthwall,
+                    vector.y + height / 2 - widthway / 2
+                ),
+                Vector2D(
+                    vector.x + width / 2 - widthway / 2,
+                    vector.y + height
+                )
             )
         )
         walls.add(
             WallBlock(
-                Vector2D(vector.x + width / 2 + widthway / 2,
-                    vector.x + width / 2 + widthway / 2 + widthwall),
-                Vector2D(vector.y + height / 2 + widthway / 2,
-                    vector.y + height)
+                Vector2D(
+                    vector.x + width / 2 + widthway / 2,
+                    vector.y + height / 2 + widthway / 2
+                ),
+                Vector2D(
+                    vector.x + width / 2 + widthway / 2 + widthwall,
+                    vector.y + height
+                )
             )
         )
         walls.add(
             WallBlock(
-                Vector2D(vector.x + width / 2 - widthway / 2 - widthwall,
-                    vector.x + width),
-                Vector2D(vector.y + height / 2 - widthway / 2 + widthwall,
-                    vector.y + height / 2 - widthway / 2)
+                Vector2D(
+                    vector.x + width / 2 - widthway / 2 - widthwall,
+                    vector.y + height / 2 - widthway / 2 + widthwall
+                ),
+                Vector2D(
+                    vector.x + width,
+                    vector.y + height / 2 - widthway / 2
+                )
             )
         )
         walls.add(
             WallBlock(
-                Vector2D(vector.x + width / 2 + widthway / 2,
-                    vector.x + width),
-                Vector2D(vector.y + height / 2 + widthway / 2,
-                    vector.y + height / 2 + widthway / 2 + widthwall)
+                Vector2D(
+                    vector.x + width / 2 + widthway / 2,
+                    vector.y + height / 2 + widthway / 2
+                ),
+                Vector2D(
+                    vector.x + width,
+                    vector.y + height / 2 + widthway / 2 + widthwall
+                )
             )
         )
     }

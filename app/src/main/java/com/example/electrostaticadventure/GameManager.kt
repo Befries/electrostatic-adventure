@@ -16,8 +16,7 @@ import com.example.electrostaticadventure.gameobjects.ControllableCharge
 import com.example.electrostaticadventure.gameobjects.Field
 import com.example.electrostaticadventure.gameobjects.Journeyer
 import com.example.electrostaticadventure.gameobjects.UncontrollableCharge
-import com.example.electrostaticadventure.gameobjects.map.WallBlock
-import com.example.electrostaticadventure.gameobjects.plaques.EditorMode.*
+import com.example.electrostaticadventure.uiobjects.EditorMode.*
 import com.example.electrostaticadventure.gameobjects.plaques.FinishPlaque
 import com.example.electrostaticadventure.gameobjects.plaques.Plaque
 import com.example.electrostaticadventure.mathmodule.Vector2D
@@ -27,14 +26,6 @@ import com.example.electrostaticadventure.uiobjects.GameCounter
 import com.example.electrostaticadventure.uiobjects.LaunchButton
 import com.example.electrostaticadventure.uiobjects.MenuButton
 import com.example.electrostaticadventure.uiobjects.RunButton
-import com.example.electrostaticadventure.gameobjects.map.Block
-import com.example.electrostaticadventure.gameobjects.map.BlockDownLeft
-import com.example.electrostaticadventure.gameobjects.map.BlockDownRight
-import com.example.electrostaticadventure.gameobjects.map.BlockLeftRight
-import com.example.electrostaticadventure.gameobjects.map.BlockTopDown
-import com.example.electrostaticadventure.gameobjects.map.BlockTopLeft
-import com.example.electrostaticadventure.gameobjects.map.BlockTopRight
-import com.example.electrostaticadventure.gameobjects.map.Wall
 import com.example.electrostaticadventure.gameobjects.plaques.PolarityChangePlaque
 import com.example.electrostaticadventure.gameobjects.map.Map
 import com.example.electrostaticadventure.gameobjects.map.BlockType.*
@@ -43,6 +34,7 @@ import androidx.fragment.app.FragmentActivity
 import android.content.DialogInterface
 import android.app.AlertDialog
 import android.app.Dialog
+import com.example.electrostaticadventure.gameobjects.map.WallBlock
 
 class GameManager @JvmOverloads constructor(
     context: Context,
@@ -51,11 +43,10 @@ class GameManager @JvmOverloads constructor(
 ) : SurfaceView(context, attributes, defStyleAttr), SurfaceHolder.Callback, Runnable {
 
     companion object {
-        const val maxField = 10f;
         const val maxTotalField = 100f;
         const val strength = 50f;
         const val scaleFactor = 500f;
-        const val speedValue = 5f;
+        const val timeAcceleration = 2f;
     }
 
     private val activity = context as FragmentActivity
@@ -74,17 +65,14 @@ class GameManager @JvmOverloads constructor(
     private lateinit var runStopButton: RunButton;
 
     private var field = Field(30, 10);
-    private var finishPlaque = FinishPlaque(
-        RectF(0f, 0f, 100f, 100f),
-        this
-    );
-    private var walls = ArrayList<Wall>();
+    private lateinit var finishPlaque: FinishPlaque;
+    private var outerWalls = ArrayList<WallBlock>();
     private var plaques = ArrayList<Plaque>();
 
     private lateinit var negativeCounter: GameCounter
     private lateinit var positiveCounter: GameCounter
 
-    private var map = Map(0,0, 0f, 0f, Vector2D(0f,0f))
+    private var map = Map(0, 0, 0f, 0f, Vector2D(0f, 0f))
 
     lateinit var thread: Thread;
     lateinit var canvas: Canvas;
@@ -206,12 +194,14 @@ class GameManager @JvmOverloads constructor(
         field.add(UncontrollableCharge(1, Vector2D(w / 2, h / 4), context));
         field.add(UncontrollableCharge(-1, Vector2D(w / 2, h * 3 / 4), context));
 
-        map = Map(5,4, w , h, origin)
+        map = Map(5, 4, w, h, origin)
 
-        walls.add(Wall(origin, origin + Vector2D(w, 40f)));
-        walls.add(Wall(origin + Vector2D(w - 40f, 0f), origin + Vector2D(w, h)));
-        walls.add(Wall(origin + Vector2D(0f, 0f), origin + Vector2D(40f, h)));
-        walls.add(Wall(origin + Vector2D(0f, h - 40f), origin + Vector2D(w, h)));
+        outerWalls.add(WallBlock(origin, origin + Vector2D(w, 40f)));
+        outerWalls.add(WallBlock(origin + Vector2D(w - 40f, 0f), origin + Vector2D(w, h)));
+        outerWalls.add(WallBlock(origin + Vector2D(0f, 0f), origin + Vector2D(40f, h)));
+        outerWalls.add(WallBlock(origin + Vector2D(0f, h - 40f), origin + Vector2D(w, h)));
+
+        map.lonelyWalls.addAll(outerWalls);
 
         map.addBlock(3, 0, LeftRight)
         map.addBlock(2, 0, DownRight)
@@ -230,14 +220,16 @@ class GameManager @JvmOverloads constructor(
         map.addBlock(0, 3, DownRight)
         map.addBlock(0, 4, TopLeft)
 
-        plaques.add(PolarityChangePlaque(map.getRectF(2, 2)))
-        plaques.add(PolarityChangePlaque(map.getRectF(1, 3)))
 
+        plaques.add(PolarityChangePlaque(map.getInnerRectF(2, 2), context))
+        plaques.add(PolarityChangePlaque(map.getInnerRectF(3, 1), context))
 
+        finishPlaque = FinishPlaque(map.getInnerRectF(4, 0), this);
+        plaques.add(finishPlaque);
+
+        gameDrawers.addAll(plaques);
+        gameDrawers.add(map);
         gameDrawers.add(field);
-        gameDrawers.addAll(walls);
-        gameDrawers.add(map)
-        gameDrawers.addAll(plaques)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -258,6 +250,7 @@ class GameManager @JvmOverloads constructor(
                 if (playgroundArea.contains(x, y)) gameInteraction(x, y);
                 for (button in gameButtons) button.press(x, y);
             }
+
             RUNNING -> runStopButton.press(x, y);
         }
     }
@@ -272,12 +265,14 @@ class GameManager @JvmOverloads constructor(
                 field.add(ControllableCharge(1, Vector2D(x, y), context));
                 positiveCounter.value -= 1;
             }
+
             ERASER -> {
                 val removedCharge = ArrayList<Charge>();
                 for (charge in field) {
                     // verify that the charge is controllable and inside the radius of delete
                     if (charge is ControllableCharge &&
-                        Vector2D.mag(charge.center - Vector2D(x, y)) < 50) {
+                        Vector2D.mag(charge.center - Vector2D(x, y)) < 50
+                    ) {
                         if (charge.polarity > 0) positiveCounter.value += 1;
                         else negativeCounter.value += 1;
                         removedCharge.add(charge);
@@ -285,10 +280,10 @@ class GameManager @JvmOverloads constructor(
                 }
                 field.removeAll(removedCharge.toSet());
             }
+
             IDLE -> {}
         }
     }
-
 
 
     private fun onTouchUP(x: Float, y: Float) {
@@ -344,7 +339,8 @@ class GameManager @JvmOverloads constructor(
         while (drawing) {
             // calculate time passed between frame
             val currentFrameTime = System.currentTimeMillis();
-            val delayTime = (currentFrameTime - previousFrameTime).toFloat() / 1000 * speedValue;
+            val delayTime =
+                (currentFrameTime - previousFrameTime).toFloat() / 1000 * timeAcceleration;
 
             if (!environmentInitialized) continue;
             if (gameState == RUNNING) journeyer.update(delayTime);
@@ -362,14 +358,14 @@ class GameManager @JvmOverloads constructor(
     private fun journeyerReset() {
         journeyer = Journeyer(
             field, map.startingPos,
-            50f, 20f, walls, map,/*map,*/ plaques, finishPlaque, context
+            40f, 20f, map, plaques, finishPlaque, context
         )
     }
 
-    private fun fieldReset(){
+    private fun fieldReset() {
         val removedCharge = ArrayList<Charge>()
-        for (charge in field){
-            if (charge is ControllableCharge){
+        for (charge in field) {
+            if (charge is ControllableCharge) {
                 if (charge.polarity > 0) positiveCounter.value += 1
                 else negativeCounter.value += 1
                 removedCharge.add(charge)
@@ -378,41 +374,41 @@ class GameManager @JvmOverloads constructor(
         field.removeAll(removedCharge.toSet())
     }
 
-    private fun plaquesReset(){
-        for (plaque in plaques) plaque.polarityChangeState = "possible"
+    private fun plaquesReset() {
+        for (plaque in plaques) plaque.activated = true;
     }
 
-    private fun wallBlockReset(){
+    private fun wallBlockReset() {
         map.reset()
     }
 
 
-    fun gameMenuReset(){
+    fun gameMenuReset() {
         journeyerReset()
         plaquesReset()
         fieldReset()
         wallBlockReset()
     }
 
-    fun gameStopReset(){
+    fun gameStopReset() {
         journeyerReset()
         plaquesReset()
         wallBlockReset()
     }
 
-    fun endGame(){
+    fun endGame() {
         drawing = false
         showGameOverDialog(R.string.end)
     }
 
     fun showGameOverDialog(messageId: Int) {
-        class GameResult: DialogFragment() {
+        class GameResult : DialogFragment() {
             override fun onCreateDialog(bundle: Bundle?): Dialog {
-                val builder = AlertDialog.Builder(getActivity())
+                val builder = AlertDialog.Builder(activity)
                 builder.setTitle(resources.getString(messageId))
                 //builder.setMessage(resources.getString(R.string.results_format))
                 builder.setPositiveButton(R.string.reset_game,
-                    DialogInterface.OnClickListener { _, _->newGame()}
+                    DialogInterface.OnClickListener { _, _ -> newGame() }
                 )
                 return builder.create()
             }
@@ -428,13 +424,13 @@ class GameManager @JvmOverloads constructor(
                 }
                 ft.addToBackStack(null)
                 val gameResult = GameResult()
-                gameResult.setCancelable(false)
-                gameResult.show(ft,"dialog")
+                gameResult.isCancelable = false
+                gameResult.show(ft, "dialog")
             }
         )
     }
 
-    fun newGame(){
+    fun newGame() {
         drawing = true
         //environmentInitialized = false
         gameMenuReset()

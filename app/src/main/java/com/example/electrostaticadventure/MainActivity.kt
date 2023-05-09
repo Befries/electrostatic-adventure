@@ -17,7 +17,6 @@ class MainActivity : AppCompatActivity() {
         gameManager.setWillNotDraw(true);
         gameManager.invalidate();
 
-
     }
 
     override fun onPause() {
@@ -30,7 +29,5 @@ class MainActivity : AppCompatActivity() {
         gameManager.resume();
 
     }
-
-
 
 }

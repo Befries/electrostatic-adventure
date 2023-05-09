@@ -5,7 +5,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import com.example.electrostaticadventure.Drawer
 
-class GameCounter(private val left: Float, private val top: Float, var value: Int): Drawer {
+class GameCounter(private val left: Float, private val top: Float, var value: Int) : Drawer {
 
     public val paint = Paint();
 

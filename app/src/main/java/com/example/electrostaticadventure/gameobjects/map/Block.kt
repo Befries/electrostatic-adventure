@@ -15,24 +15,22 @@ abstract class Block(
     val height: Float,
     val widthWay: Float,
     val widthWall: Float
-){
+) {
     var walls = ArrayList<WallBlock>()
 
     fun draw(canvas: Canvas?) {
-        for (wall in walls) {
-            wall.draw(canvas)
-        }
-
-    }
-    fun check(journeyer : Journeyer, dt : Float){
-        for (wall in walls) wall.check(journeyer, dt)
+        for (wall in walls) wall.draw(canvas);
     }
 
-    fun update(journeyer : Journeyer) {
-        for (wall in walls) wall.update(journeyer)
+    fun check(journeyer: Journeyer, dt: Float) {
+        for (wall in walls) wall.check(journeyer, dt);
     }
 
-    fun colorReset(){
+    fun update(journeyer: Journeyer) {
+        for (wall in walls) wall.update(journeyer);
+    }
+
+    fun colorReset() {
         for (wall in walls) wall.colorReset()
     }
 }

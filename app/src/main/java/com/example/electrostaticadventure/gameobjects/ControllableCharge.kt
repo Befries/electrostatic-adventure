@@ -15,7 +15,10 @@ class ControllableCharge(polarity: Int, center: Vector2D, context: Context) : Ch
 
     init {
         texture =
-            if (polarity < 0) BitmapFactory.decodeResource(context.resources, R.drawable.controlable_negative);
+            if (polarity < 0) BitmapFactory.decodeResource(
+                context.resources,
+                R.drawable.controlable_negative
+            );
             else BitmapFactory.decodeResource(context.resources, R.drawable.controlable_positive);
     }
 

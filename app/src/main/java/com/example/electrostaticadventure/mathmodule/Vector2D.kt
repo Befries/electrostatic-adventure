@@ -2,7 +2,7 @@ package com.example.electrostaticadventure.mathmodule
 
 import kotlin.math.sqrt
 
-data class Vector2D (var x: Float, var y: Float) {
+data class Vector2D(var x: Float, var y: Float) {
 
     companion object {
         fun mag(vector2D: Vector2D): Float {
@@ -37,7 +37,7 @@ data class Vector2D (var x: Float, var y: Float) {
 
 
     operator fun div(scalar: Float): Vector2D {
-        return this * (1/scalar);
+        return this * (1 / scalar);
     }
 
     operator fun times(other: Vector2D): Float {
@@ -45,7 +45,7 @@ data class Vector2D (var x: Float, var y: Float) {
     }
 
     private fun magSquared(): Float {
-        return x*x + y*y;
+        return x * x + y * y;
     }
 
     private fun mag(): Float {

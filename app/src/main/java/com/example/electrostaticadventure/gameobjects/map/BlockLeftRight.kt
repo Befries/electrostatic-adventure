@@ -14,18 +14,26 @@ class BlockLeftRight(
     init {
         walls.add(
             WallBlock(
-                Vector2D(vector.x,
-                    vector.x + width),
-                Vector2D(vector.y + height / 2 - widthWay / 2,
-                    vector.y + height / 2 - widthWay / 2 + widthWall)
+                Vector2D(
+                    vector.x,
+                    vector.y + height / 2 - widthWay / 2
+                ),
+                Vector2D(
+                    vector.x + width,
+                    vector.y + height / 2 - widthWay / 2 + widthWall
+                )
             )
         )
         walls.add(
             WallBlock(
-                Vector2D(vector.x,
-                    vector.x + width),
-                Vector2D(vector.y + height / 2 + widthWay / 2,
-                    vector.y + height / 2 + widthWay / 2 + widthWall)
+                Vector2D(
+                    vector.x,
+                    vector.y + height / 2 + widthWay / 2
+                ),
+                Vector2D(
+                    vector.x + width,
+                    vector.y + height / 2 + widthWay / 2 + widthWall
+                )
             )
         )
     }

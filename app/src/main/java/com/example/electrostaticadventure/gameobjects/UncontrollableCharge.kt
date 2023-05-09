@@ -12,8 +12,14 @@ class UncontrollableCharge(polarity: Int, center: Vector2D, context: Context) : 
 
     init {
         texture =
-            if (polarity < 0) BitmapFactory.decodeResource(context.resources, R.drawable.ncs1);
-            else BitmapFactory.decodeResource(context.resources, R.drawable.pcs2);
+            if (polarity < 0) BitmapFactory.decodeResource(
+                context.resources,
+                R.drawable.uncontrollable_negative
+            );
+            else BitmapFactory.decodeResource(
+                context.resources,
+                R.drawable.uncontrollable_positive
+            );
     }
 
 }

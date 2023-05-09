@@ -1,6 +1,6 @@
 package com.example.electrostaticadventure.gameobjects.map
 
-enum class BlockType{
+enum class BlockType {
     DownLeft,
     DownRight,
     LeftRight,

@@ -7,14 +7,17 @@ import android.graphics.RectF
 import com.example.electrostaticadventure.GameManager
 import com.example.electrostaticadventure.GameStatus
 
-class RunButton(frame: RectF, context: Context, pressedImageId: Int, idleImageId: Int,
-                activeImageId: Int, pressedActiveImageId: Int, gameManager: GameManager
-) : GameButton(frame, context,
+class RunButton(
+    frame: RectF, context: Context, pressedImageId: Int, idleImageId: Int,
+    activeImageId: Int, pressedActiveImageId: Int, gameManager: GameManager
+) : GameButton(
+    frame, context,
     pressedImageId,
     idleImageId, activeImageId, gameManager
 ) {
 
-    private val pressedStopTexture = BitmapFactory.decodeResource(context.resources, pressedActiveImageId);
+    private val pressedStopTexture =
+        BitmapFactory.decodeResource(context.resources, pressedActiveImageId);
 
     override fun toSleep() {
         gameManager.gameState = GameStatus.DEPLOYMENT;

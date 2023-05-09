@@ -10,7 +10,7 @@ import com.example.electrostaticadventure.mathmodule.Vector2D
 import com.example.electrostaticadventure.mathmodule.Vector2D.Companion.mag
 import com.example.electrostaticadventure.mathmodule.Vector2D.Companion.normal
 
-class Field(var rows: Int, var columns: Int): ArrayList<Charge>(), Drawer {
+class Field(var rows: Int, var columns: Int) : ArrayList<Charge>(), Drawer {
 
 
     var paint = Paint();
@@ -25,14 +25,15 @@ class Field(var rows: Int, var columns: Int): ArrayList<Charge>(), Drawer {
 
     inner class Cell(val bodyCenter: Vector2D, var value: Vector2D) {
         // class of the arrows showing up on the field
-        private var back = bodyCenter - value/2f;
+        private var back = bodyCenter - value / 2f;
         private var front = back + value;
 
         fun changeValue(newValue: Vector2D) {
             value = newValue;
-            back = bodyCenter - value/2f;
+            back = bodyCenter - value / 2f;
             front = back + value;
         }
+
         fun draw(canvas: Canvas?) {
             canvas?.drawLine(back.x, back.y, front.x, front.y, paint);
         }
@@ -45,8 +46,10 @@ class Field(var rows: Int, var columns: Int): ArrayList<Charge>(), Drawer {
         for (i in 0..columns) {
             for (j in 1..rows) {
                 // middle vector
-                val pos = Vector2D(origin.x + (cellSizeX * (i.toFloat() + 1/2)),
-                    origin.y + (cellSizeY * (j.toFloat() + 1/2)));
+                val pos = Vector2D(
+                    origin.x + (cellSizeX * (i.toFloat() + 1 / 2)),
+                    origin.y + (cellSizeY * (j.toFloat() + 1 / 2))
+                );
                 // instantiate cell; access a particular cell with index = (x + y * rows)
                 cells.add(Cell(pos, getFieldAt(pos)));
             }
@@ -56,8 +59,8 @@ class Field(var rows: Int, var columns: Int): ArrayList<Charge>(), Drawer {
     private fun updateCells() {
         // recalculate the field vector in each cell
         for (i in 0..columns) {
-            for (j in 0 until rows-1) {
-                val current = cells[j+i*rows];
+            for (j in 0 until rows - 1) {
+                val current = cells[j + i * rows];
                 current.changeValue(getFieldAt(current.bodyCenter));
             }
         }
@@ -96,7 +99,8 @@ class Field(var rows: Int, var columns: Int): ArrayList<Charge>(), Drawer {
 
     // wait that the drawing ends to modify the array (avoid crash)
     private fun waitUntilAvailable() {
-        while (drawingCharges) {}
+        while (drawingCharges) {
+        }
     }
 
 }

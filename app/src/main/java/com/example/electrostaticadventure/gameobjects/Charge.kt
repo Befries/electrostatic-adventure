@@ -10,7 +10,7 @@ import com.example.electrostaticadventure.mathmodule.Vector2D
 import com.example.electrostaticadventure.mathmodule.Vector2D.Companion.magSquared
 import com.example.electrostaticadventure.mathmodule.Vector2D.Companion.normal
 
-abstract class Charge(val polarity: Int, var center: Vector2D, var context: Context): Drawer {
+abstract class Charge(val polarity: Int, var center: Vector2D, var context: Context) : Drawer {
 
     protected lateinit var texture: Bitmap;
     private val radius = 50;

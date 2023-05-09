@@ -7,10 +7,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
-import com.example.electrostaticadventure.GameManager
 import com.example.electrostaticadventure.R
-import com.example.electrostaticadventure.gameobjects.map.Block
-import com.example.electrostaticadventure.gameobjects.map.Wall
 import com.example.electrostaticadventure.gameobjects.observer.Observer
 import com.example.electrostaticadventure.gameobjects.plaques.Plaque
 import com.example.electrostaticadventure.mathmodule.Vector2D
@@ -19,11 +16,13 @@ import com.example.electrostaticadventure.gameobjects.map.Map
 
 class Journeyer(
     private val field: Field, var position: Vector2D, private val radius: Float, maxSpeed: Float,
-    private val walls: ArrayList<Wall>, private val map : Map/*private val blocks: ArrayList<Block>*//*private val map : Labyrinth,*/, private val plaques: ArrayList<Plaque>,
+    private val map: Map/*private val blocks: ArrayList<Block>*//*private val map : Labyrinth,*/,
+    private val plaques: ArrayList<Plaque>,
     private val finishing: Plaque, context: Context
 ) {
 
     private var observers = ArrayList<Observer>()
+
     init {
         observers.add(map)
     }
@@ -39,24 +38,30 @@ class Journeyer(
     private var speed = Vector2D(0f, 0f);
     private val maxSpeedSquared = maxSpeed * maxSpeed;
 
-    private val bodyPosTexture = BitmapFactory.decodeResource(context.resources, R.drawable.pjcs1);
-    private val bodyNegTexture = BitmapFactory.decodeResource(context.resources, R.drawable.ncs2);
+    private val bodyPosTexture =
+        BitmapFactory.decodeResource(context.resources, R.drawable.journeyer_positive);
+    private val bodyNegTexture =
+        BitmapFactory.decodeResource(context.resources, R.drawable.journeyer_negative);
     private var bodyTexture = bodyPosTexture;
 
-    private val eyesUpLeft = BitmapFactory.decodeResource(context.resources, R.drawable.eyes_upleft);
-    private val eyesUpRight = BitmapFactory.decodeResource(context.resources, R.drawable.eyes_upright);
-    private val eyesDownLeft = BitmapFactory.decodeResource(context.resources, R.drawable.eyes_downleft);
-    private val eyesDownRight = BitmapFactory.decodeResource(context.resources, R.drawable.eyes_downright);
+    private val eyesUpLeft =
+        BitmapFactory.decodeResource(context.resources, R.drawable.eyes_upleft);
+    private val eyesUpRight =
+        BitmapFactory.decodeResource(context.resources, R.drawable.eyes_upright);
+    private val eyesDownLeft =
+        BitmapFactory.decodeResource(context.resources, R.drawable.eyes_downleft);
+    private val eyesDownRight =
+        BitmapFactory.decodeResource(context.resources, R.drawable.eyes_downright);
     private lateinit var eyes: Bitmap;
 
-    private var moustacheTexture = BitmapFactory.decodeResource(context.resources, R.drawable.moustache);
+    private var moustacheTexture =
+        BitmapFactory.decodeResource(context.resources, R.drawable.moustache);
 
 
     var hitBox = RectF(
         position.x - radius, position.y - radius,
         position.x + radius, position.y + radius
     );
-
 
 
     private val paint = Paint();
@@ -75,12 +80,7 @@ class Journeyer(
         position += dl;
 
         updateHitBox();
-
-        for (wall in walls) wall.check(this, dt);
-
-        map.check(this,  dt)
-        //for (block in blocks) block.check(this, dt)
-
+        map.check(this, dt)
         for (plaque in plaques) {
             plaque.check(this);
         }
@@ -113,7 +113,7 @@ class Journeyer(
         canvas?.drawBitmap(moustacheTexture, null, hitBox, null);
     }
 
-    private fun notifyObservers(){
+    private fun notifyObservers() {
         for (observer in observers) observer.update(this)
     }
 

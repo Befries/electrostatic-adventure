@@ -379,11 +379,11 @@ class GameManager @JvmOverloads constructor(
             // calculate time passed between frame
             val currentFrameTime = System.currentTimeMillis();
             val delayTime =
-                (currentFrameTime - previousFrameTime).toFloat() / 1000 * timeAcceleration;
+                (currentFrameTime - previousFrameTime).toFloat() / 1000;
 
             if (!environmentInitialized) continue;
             if (gameState == RUNNING) {
-                journeyer.update(delayTime);
+                journeyer.update(delayTime * timeAcceleration);
                 gameTimer.value += delayTime;
             };
             draw();

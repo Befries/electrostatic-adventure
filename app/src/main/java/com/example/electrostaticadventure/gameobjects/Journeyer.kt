@@ -18,7 +18,7 @@ class Journeyer(
     private val field: Field, var position: Vector2D, private val radius: Float, maxSpeed: Float,
     private val map: Map/*private val blocks: ArrayList<Block>*//*private val map : Labyrinth,*/,
     private val plaques: ArrayList<Plaque>,
-    private val finishing: Plaque, context: Context
+    context: Context
 ) {
 
     private var observers = ArrayList<Observer>()
@@ -84,7 +84,6 @@ class Journeyer(
         for (plaque in plaques) {
             plaque.check(this);
         }
-        finishing.check(this);
     }
 
     private fun updateHitBox() {

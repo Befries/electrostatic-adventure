@@ -66,7 +66,6 @@ class GameManager @JvmOverloads constructor(
     private lateinit var runStopButton: RunButton;
 
     private var field = Field(40, 18);
-    private lateinit var finishPlaque: FinishPlaque;
     private var outerWalls = ArrayList<WallBlock>();
     private var plaques = ArrayList<Plaque>();
     private lateinit var uncontrollableCharges: Array<UncontrollableCharge>;
@@ -258,7 +257,7 @@ class GameManager @JvmOverloads constructor(
         plaques.add(PolarityChangePlaque(map.getInnerRectF(2, 2), context))
         plaques.add(PolarityChangePlaque(map.getInnerRectF(3, 1), context))
 
-        finishPlaque = FinishPlaque(map.getInnerRectF(4, 0), this);
+        val finishPlaque = FinishPlaque(map.getInnerRectF(4, 0), this);
         plaques.add(finishPlaque);
 
         gameDrawers.addAll(plaques);
@@ -400,7 +399,7 @@ class GameManager @JvmOverloads constructor(
     private fun journeyerReset() {
         journeyer = Journeyer(
             field, map.startingPos,
-            40f, 20f, map, plaques, finishPlaque, context
+            40f, 20f, map, plaques, context
         )
         gameTimer.value = 0f;
     }
